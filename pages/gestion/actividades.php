@@ -18,6 +18,7 @@ $datosFormulario = [
     'tiempo_minutos' => '10',
     'tiempo_por_pregunta' => '20',
     'puntaje_minimo' => '70',
+    'fecha_limite' => '',
 ];
 $actividades = [];
 $temas = [];
@@ -178,6 +179,10 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                         <label>Puntaje mínimo para aprobar (%)
                             <input type="number" name="puntaje_minimo" min="0" max="100" step="0.01" value="<?= $e($datosFormulario['puntaje_minimo']) ?>">
                         </label>
+                        <label>Fecha límite (opcional)
+                            <input type="datetime-local" name="fecha_limite" value="<?= $e($datosFormulario['fecha_limite']) ?>">
+                            <small>Déjala vacía si la actividad no tiene fecha de entrega. Los estudiantes la verán y el asistente se la recordará.</small>
+                        </label>
                         <label>Descripción (opcional)
                             <textarea name="descripcion" rows="3"><?= $e($datosFormulario['descripcion']) ?></textarea>
                         </label>
@@ -215,6 +220,10 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                             <div class="dato-actividad">
                                 <strong>Tiempo:</strong>
                                 <span><?= htmlspecialchars(TiempoActividad::describir($actividad['tiempo_limite'] ?? null, $actividad['modo_tiempo'] ?? null, (int) ($actividad['preguntas_registradas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?></span>
+                            </div>
+                            <div class="dato-actividad">
+                                <strong>Fecha límite:</strong>
+                                <span><?= htmlspecialchars(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null), ENT_QUOTES, 'UTF-8') ?></span>
                             </div>
                             <div class="dato-actividad">
                                 <strong>Puntaje mínimo:</strong>

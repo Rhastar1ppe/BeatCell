@@ -175,6 +175,17 @@ $e = static fn($valor): string => htmlspecialchars(
 																<?php endif; ?>
 																<h5><?= $e($actividad['titulo']) ?></h5>
 																<?php if (!empty($actividad['descripcion'])): ?><p class="texto"><?= $e($actividad['descripcion']) ?></p><?php endif; ?>
+															<?php
+															$estadoFecha = TiempoActividad::estadoFecha($actividad['fecha_limite'] ?? null);
+															if ((int) $actividad['realizada'] === 1 && in_array($estadoFecha, [TiempoActividad::PRONTO, TiempoActividad::VENCIDA], true)) {
+																$estadoFecha = TiempoActividad::VIGENTE;
+															}
+															$avisoFecha = TiempoActividad::avisoFecha($estadoFecha);
+															?>
+															<p class="fecha-limite fecha-limite--<?= $e($estadoFecha) ?>">
+																<?= $e(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null)) ?>
+																<?php if ($avisoFecha !== ''): ?><strong class="fecha-limite-aviso"><?= $e($avisoFecha) ?></strong><?php endif; ?>
+															</p>
 																<p class="actividad-meta">
 																	Tipo: <?= $e($actividad['tipo']) ?> ·
 																	Preguntas: <?= (int) $actividad['preguntas_activas'] ?> ·

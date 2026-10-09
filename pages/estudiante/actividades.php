@@ -7,7 +7,7 @@ $actividades = [];
 $errorCarga = null;
 try {
     $db = (new Database())->connect();
-    $stmt = $db->prepare("SELECT a.id_actividad, a.titulo, a.descripcion, a.tipo, a.modo_tiempo, a.tiempo_limite, a.puntaje_minimo,
+    $stmt = $db->prepare("SELECT a.id_actividad, a.titulo, a.descripcion, a.tipo, a.modo_tiempo, a.tiempo_limite, a.puntaje_minimo, a.fecha_limite,
         (SELECT COUNT(*) FROM preguntas p WHERE p.id_actividad = a.id_actividad AND p.estado = 'Activo') AS preguntas_registradas,
         EXISTS (
             SELECT 1 FROM resultados r
@@ -56,6 +56,18 @@ $e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
             <?php if (!empty($actividad['descripcion'])): ?><p><?= $e($actividad['descripcion']) ?></p><?php endif; ?>
             <p>Preguntas: <?= (int)$actividad['preguntas_registradas'] ?></p>
             <p>Tiempo: <?= $e(TiempoActividad::describir($actividad['tiempo_limite'], $actividad['modo_tiempo'] ?? null))  ?></p>
+            <?php
+            // Una actividad ya realizada no necesita la alerta de vencimiento.
+            $estadoFecha = TiempoActividad::estadoFecha($actividad['fecha_limite'] ?? null);
+            if ((int) $actividad['realizada'] === 1 && in_array($estadoFecha, [TiempoActividad::PRONTO, TiempoActividad::VENCIDA], true)) {
+                $estadoFecha = TiempoActividad::VIGENTE;
+            }
+            $avisoFecha = TiempoActividad::avisoFecha($estadoFecha);
+            ?>
+            <p class="fecha-limite fecha-limite--<?= $e($estadoFecha) ?>">
+                <?= $e(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null)) ?>
+                <?php if ($avisoFecha !== ''): ?><strong class="fecha-limite-aviso"><?= $e($avisoFecha) ?></strong><?php endif; ?>
+            </p>
             <a class="btn-resolver" href="actividad.php?id=<?= (int)$actividad['id_actividad'] ?>">
                 <?= (int) $actividad['realizada'] === 1 ? 'Ver estado' : 'Resolver actividad' ?>
             </a>
@@ -63,4 +75,4 @@ $e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
     <?php endforeach; endif; ?>
     </section>
 </main>
-</body></html>
+</body></html> 

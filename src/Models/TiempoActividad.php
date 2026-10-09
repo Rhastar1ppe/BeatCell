@@ -84,4 +84,107 @@ final class TiempoActividad
 
         return 0;
     }
+
+    // ------------------------------------------------------------------
+    // Fecha límite de la actividad (opcional). Se guarda como DATETIME sin zona
+    // y se compara con la hora actual del servidor PHP.
+    // ------------------------------------------------------------------
+    public const SIN_FECHA = 'sin_fecha';
+    public const VIGENTE = 'vigente';
+    public const PRONTO = 'pronto';
+    public const VENCIDA = 'vencida';
+    public const DIAS_VENCE_PRONTO = 3;
+
+    private const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+    /**
+     * Valida la fecha límite que llega del formulario (input datetime-local) o de la base
+     * y la devuelve como "Y-m-d H:i:s". Vacío o null significa "sin fecha límite".
+     */
+    public static function normalizarFechaLimite($valor): ?string
+    {
+        if ($valor === null) {
+            return null;
+        }
+        if (!is_string($valor)) {
+            throw new InvalidArgumentException('La fecha límite no es válida.');
+        }
+        $valor = trim($valor);
+        if ($valor === '') {
+            return null;
+        }
+
+        foreach (['Y-m-d\TH:i', 'Y-m-d\TH:i:s', 'Y-m-d H:i', 'Y-m-d H:i:s'] as $formato) {
+            $fecha = DateTimeImmutable::createFromFormat('!' . $formato, $valor);
+            $errores = DateTimeImmutable::getLastErrors();
+            $limpio = $errores === false || ($errores['warning_count'] === 0 && $errores['error_count'] === 0);
+            if ($fecha instanceof DateTimeImmutable && $limpio) {
+                $anio = (int) $fecha->format('Y');
+                if ($anio < 2000 || $anio > 2100) {
+                    throw new InvalidArgumentException('La fecha límite debe estar entre los años 2000 y 2100.');
+                }
+                return $fecha->format('Y-m-d H:i:s');
+            }
+        }
+
+        throw new InvalidArgumentException('La fecha límite no es válida.');
+    }
+
+    /** Convierte el valor guardado en la base a objeto fecha, o null si no hay fecha. */
+    private static function aFecha($valor): ?DateTimeImmutable
+    {
+        if (!is_string($valor) || trim($valor) === '' || strpos($valor, '0000-00-00') === 0) {
+            return null;
+        }
+        $fecha = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', trim($valor));
+
+        return $fecha instanceof DateTimeImmutable ? $fecha : null;
+    }
+
+    /** sin_fecha, vigente, pronto (vence en los próximos 3 días) o vencida. */
+    public static function estadoFecha($valor, ?DateTimeInterface $ahora = null): string
+    {
+        $limite = self::aFecha($valor);
+        if ($limite === null) {
+            return self::SIN_FECHA;
+        }
+        $ahora = $ahora !== null ? DateTimeImmutable::createFromInterface($ahora) : new DateTimeImmutable('now');
+        if ($limite < $ahora) {
+            return self::VENCIDA;
+        }
+
+        return $limite <= $ahora->modify('+' . self::DIAS_VENCE_PRONTO . ' days') ? self::PRONTO : self::VIGENTE;
+    }
+
+    /** Fecha corta en español: "15 oct 2026, 23:59". */
+    public static function formatearFecha($valor): string
+    {
+        $fecha = self::aFecha($valor);
+        if ($fecha === null) {
+            return '';
+        }
+
+        return $fecha->format('j') . ' ' . self::MESES[(int) $fecha->format('n') - 1] . ' ' . $fecha->format('Y, H:i');
+    }
+
+    /** Texto para listados: "Sin fecha límite", "Vence el 15 oct 2026, 23:59" o "Venció el ...". */
+    public static function describirFecha($valor, ?DateTimeInterface $ahora = null): string
+    {
+        $estado = self::estadoFecha($valor, $ahora);
+        if ($estado === self::SIN_FECHA) {
+            return 'Sin fecha límite';
+        }
+
+        return ($estado === self::VENCIDA ? 'Venció el ' : 'Vence el ') . self::formatearFecha($valor);
+    }
+
+    /** Aviso corto para mostrar junto a la fecha: "Vence pronto", "Vencida" o vacío. */
+    public static function avisoFecha(string $estado): string
+    {
+        if ($estado === self::PRONTO) {
+            return 'Vence pronto';
+        }
+
+        return $estado === self::VENCIDA ? 'Vencida' : '';
+    }
 }

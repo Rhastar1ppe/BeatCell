@@ -153,3 +153,45 @@
 		font-size: .85rem;
 	}
 }
+
+/* Fecha límite de las actividades */
+.fecha-limite {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 8px 0;
+	color: #45566d;
+	font-size: .92rem;
+	font-weight: 600;
+}
+
+.fecha-limite--sin_fecha {
+	color: #66758a;
+	font-weight: 500;
+}
+
+.fecha-limite-aviso {
+	padding: 2px 9px;
+	border-radius: 999px;
+	font-size: .78rem;
+	font-weight: 700;
+}
+
+.fecha-limite--pronto {
+	color: #8a5200;
+}
+
+.fecha-limite--pronto .fecha-limite-aviso {
+	background: #fff1d6;
+	color: #8a5200;
+}
+
+.fecha-limite--vencida {
+	color: #a12626;
+}
+
+.fecha-limite--vencida .fecha-limite-aviso {
+	background: #fde4e4;
+	color: #a12626;
+}

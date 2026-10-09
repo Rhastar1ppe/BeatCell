@@ -100,13 +100,14 @@ class ActividadModel
         $tipo = ValidadorDatos::texto($datos['tipo'] ?? 'Cuestionario', 'tipo'); // Usa Cuestionario si no se indicó el tipo.
         [$modoTiempo, $tiempoLimite] = $this->resolverTiempo($datos); // Convierte minutos / segundos por pregunta del formulario a modo + segundos.
         $puntajeMinimo = $this->validarPuntajeMinimo($datos['puntaje_minimo'] ?? null); // Valida el umbral porcentual o guarda null.
+        $fechaLimite = TiempoActividad::normalizarFechaLimite($datos['fecha_limite'] ?? null); // Valida la fecha límite opcional o guarda null.
         $estado = ValidadorDatos::estado($datos['estado'] ?? 'Activo'); // Usa Activo como estado predeterminado.
 
         // Inserta los campos permitidos; los valores se envían aparte para evitar inyección SQL.
         $sql = 'INSERT INTO actividades
-                    (id_tema, titulo, descripcion, tipo, modo_tiempo, tiempo_limite, puntaje_minimo, estado)
+                    (id_tema, titulo, descripcion, tipo, modo_tiempo, tiempo_limite, puntaje_minimo, fecha_limite, estado)
                 VALUES
-                    (:id_tema, :titulo, :descripcion, :tipo, :modo_tiempo, :tiempo_limite, :puntaje_minimo, :estado)';
+                    (:id_tema, :titulo, :descripcion, :tipo, :modo_tiempo, :tiempo_limite, :puntaje_minimo, :fecha_limite, :estado)';
         $stmt = $this->conn->prepare($sql); // Prepara el INSERT con marcadores para cada valor.
         $stmt->execute([ // Ejecuta el INSERT y asigna cada valor a su marcador.
             'id_tema' => $idTema, // Relaciona la actividad con su tema.
@@ -116,6 +117,7 @@ class ActividadModel
             'modo_tiempo' => $modoTiempo, // Guarda cómo se mide el tiempo: sin_limite, total o por_pregunta.
             'tiempo_limite' => $tiempoLimite, // Guarda los segundos (totales o por pregunta) o null.
             'puntaje_minimo' => $puntajeMinimo, // Guarda el puntaje mínimo o null.
+            'fecha_limite' => $fechaLimite, // Guarda la fecha límite o null.
             'estado' => $estado, // Guarda si comienza activa o inactiva.
         ]);
 
@@ -138,7 +140,7 @@ class ActividadModel
         // Lista blanca: impide que una clave arbitraria termine dentro de la consulta UPDATE.
         $permitidos = [
             'id_tema', 'titulo', 'descripcion', 'tipo',
-            'modo_tiempo', 'tiempo_limite', 'puntaje_minimo', 'estado',
+            'modo_tiempo', 'tiempo_limite', 'puntaje_minimo', 'fecha_limite', 'estado',
         ];
         $campos = array_intersect_key($datos, array_flip($permitidos)); // Conserva solo las claves autorizadas.
         if ($campos === []) { // Comprueba que haya al menos un campo modificable.
@@ -170,6 +172,9 @@ class ActividadModel
                     break; // Termina este caso del switch.
                 case 'puntaje_minimo':
                     $parametros[$campo] = $this->validarPuntajeMinimo($valor); // Acepta un porcentaje entre 0 y 100 o null.
+                    break; // Termina este caso del switch.
+                case 'fecha_limite':
+                    $parametros[$campo] = TiempoActividad::normalizarFechaLimite($valor); // Acepta una fecha válida o null.
                     break; // Termina este caso del switch.
                 case 'estado':
                     $parametros[$campo] = ValidadorDatos::estado($valor); // Acepta únicamente Activo o Inactivo.

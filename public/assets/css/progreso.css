@@ -1,0 +1,423 @@
+/* =========================================================
+   BEATCELL - MI PROGRESO (pages/estudiante/progreso.php)
+   Cada regla corresponde a una clase usada en progreso.php.
+   ========================================================= */
+
+.pagina-progreso {
+    --tinta: #16202e;
+    --tinta-suave: #5b6678;
+    --fondo: #eef1f6;
+    --superficie: #ffffff;
+    --superficie-suave: #f7f9fc;
+    --linea: #dde3ec;
+    --pista: #e3e8f0;
+    --azul: #0d6efd;
+    --azul-suave: #e8f0ff;
+    --verde: #1a8f5b;
+    --ambar: #d68a00;
+    --noche: #0f1b2d;
+
+    margin: 0;
+    background: var(--fondo);
+    color: var(--tinta);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.pagina-progreso *,
+.pagina-progreso *::before,
+.pagina-progreso *::after {
+    box-sizing: border-box;
+}
+
+.contenedor-progreso {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+}
+
+/* ---------- Encabezado ---------- */
+
+.encabezado-progreso {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.sobrelinea {
+    margin: 0 0 .4rem;
+    color: var(--azul);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.encabezado-progreso h1 {
+    margin: 0;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+}
+
+.descripcion-pagina {
+    margin: .6rem 0 0;
+    color: var(--tinta-suave);
+    max-width: 46ch;
+}
+
+.resumen-general {
+    display: flex;
+    flex-direction: column;
+    min-width: 230px;
+    padding: 1.1rem 1.4rem;
+    border-radius: 20px;
+    background: var(--noche);
+    color: #ffffff;
+}
+
+.resumen-etiqueta {
+    font-size: .85rem;
+    color: #b9c6dc;
+}
+
+.resumen-general strong {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+}
+
+.resumen-detalle {
+    font-size: .85rem;
+    color: #b9c6dc;
+}
+
+/* ---------- Estado vacío ---------- */
+
+.estado-vacio {
+    padding: 3rem 1.5rem;
+    border: 2px dashed var(--linea);
+    border-radius: 18px;
+    background: var(--superficie);
+    text-align: center;
+}
+
+.icono-vacio {
+    display: block;
+    margin-bottom: .5rem;
+    color: var(--azul);
+    font-size: 2.6rem;
+    line-height: 1;
+}
+
+.estado-vacio h2 {
+    margin: 0 0 .4rem;
+    font-size: 1.25rem;
+}
+
+.estado-vacio p {
+    margin: 0;
+    color: var(--tinta-suave);
+}
+
+/* ---------- Tarjeta de curso ---------- */
+
+.lista-cursos {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tarjeta-curso {
+    overflow: hidden;
+    border: 1px solid var(--linea);
+    border-radius: 18px;
+    background: var(--superficie);
+}
+
+.tarjeta-curso[open] {
+    box-shadow: 0 8px 24px rgba(15, 27, 45, .08);
+}
+
+.encabezado-curso {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    align-items: center;
+    gap: .9rem;
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.encabezado-curso::-webkit-details-marker {
+    display: none;
+}
+
+.encabezado-curso:focus-visible {
+    outline: 3px solid var(--azul);
+    outline-offset: -3px;
+    border-radius: 18px;
+}
+
+.curso-indicador {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--azul-suave);
+    color: var(--azul);
+    font-size: 1.2rem;
+}
+
+.curso-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.curso-nombre {
+    font-size: 1.05rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.curso-meta {
+    font-size: .85rem;
+    color: var(--tinta-suave);
+}
+
+.curso-porcentaje {
+    min-width: 3.4rem;
+    text-align: right;
+    font-size: 1.3rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.flecha-detalle {
+    width: .6rem;
+    height: .6rem;
+    margin: 0 .3rem .25rem .1rem;
+    border-right: 2px solid var(--tinta-suave);
+    border-bottom: 2px solid var(--tinta-suave);
+    transform: rotate(45deg);
+    transition: transform .2s ease;
+}
+
+.tarjeta-curso[open] .flecha-detalle {
+    transform: rotate(-135deg);
+    margin-bottom: 0;
+    margin-top: .25rem;
+}
+
+.curso-barra {
+    grid-column: 1 / -1;
+}
+
+/* ---------- Estados (etiquetas) ---------- */
+
+.estado {
+    display: inline-block;
+    padding: .25rem .7rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.estado-no-iniciado { background: #e9edf3; color: #465166; }
+.estado-en-progreso { background: #dbe9ff; color: #0a4bb3; }
+.estado-completado  { background: #d8f3e6; color: #116a43; }
+.estado-reforzar    { background: #fdf0d2; color: #7a4f00; }
+
+/* ---------- Barra de progreso (estilo medidor de nivel) ---------- */
+
+.barra-progreso {
+    position: relative;
+    display: block;
+    height: .65rem;
+    border-radius: 999px;
+    background: var(--pista);
+    overflow: hidden;
+}
+
+.barra-progreso > span {
+    display: block;
+    height: 100%;
+    max-width: 100%;
+    border-radius: inherit;
+    background: var(--azul);
+    transition: width .6s ease;
+}
+
+/* Cortes verticales que dan el aspecto de medidor de sonido. */
+.barra-progreso::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 8px,
+        var(--superficie) 8px,
+        var(--superficie) 10px
+    );
+}
+
+/* La barra toma el color del estado que aparece antes que ella. */
+.estado-completado ~ .curso-barra > span,
+.estado-completado ~ .tema-avance .barra-progreso > span {
+    background: var(--verde);
+}
+
+.estado-reforzar ~ .curso-barra > span,
+.estado-reforzar ~ .tema-avance .barra-progreso > span {
+    background: var(--ambar);
+}
+
+/* ---------- Temas ---------- */
+
+.temas-curso {
+    padding: .25rem 1.25rem 1rem;
+    border-top: 1px solid var(--linea);
+    background: var(--superficie-suave);
+}
+
+.sin-temas {
+    margin: 0;
+    padding: 1rem 0;
+    color: var(--tinta-suave);
+}
+
+.fila-tema {
+    display: grid;
+    grid-template-columns: 1fr auto 11rem;
+    align-items: center;
+    gap: 1rem;
+    padding: .9rem 0;
+    border-bottom: 1px solid #e9edf3;
+}
+
+.fila-tema:last-child {
+    border-bottom: 0;
+}
+
+.tema-titulo {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.tema-titulo h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.tema-titulo p {
+    margin: .15rem 0 0;
+    font-size: .85rem;
+    color: var(--tinta-suave);
+}
+
+.punto-tema {
+    flex: none;
+    width: .65rem;
+    height: .65rem;
+    margin-top: .45rem;
+    border-radius: 50%;
+    background: #b8c2d3;
+}
+
+.fila-tema:has(.estado-en-progreso) .punto-tema { background: var(--azul); }
+.fila-tema:has(.estado-completado) .punto-tema  { background: var(--verde); }
+.fila-tema:has(.estado-reforzar) .punto-tema    { background: var(--ambar); }
+
+.tema-avance {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+
+.tema-avance > span:first-child {
+    text-align: right;
+    font-size: .85rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Nota al pie ---------- */
+
+.nota-progreso {
+    max-width: 62ch;
+    margin: 1.5rem 0 0;
+    font-size: .85rem;
+    color: var(--tinta-suave);
+}
+
+.btn-salida {
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    padding: .65rem 1rem;
+    border: 1px solid var(--linea);
+    border-radius: 8px;
+    background: var(--superficie);
+    color: var(--azul);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.btn-salida:hover {
+    background: var(--azul-suave);
+}
+
+/* ---------- Pantallas pequeñas ---------- */
+
+@media (max-width: 640px) {
+    .contenedor-progreso {
+        padding: 1.5rem 1rem 3rem;
+    }
+
+    .resumen-general {
+        width: 100%;
+    }
+
+    .encabezado-curso {
+        grid-template-columns: auto 1fr auto;
+        gap: .6rem .8rem;
+    }
+
+    .curso-indicador   { grid-area: 1 / 1; }
+    .curso-info        { grid-area: 1 / 2; }
+    .curso-porcentaje  { grid-area: 1 / 3; }
+    .encabezado-curso .estado { grid-area: 2 / 2; justify-self: start; }
+    .flecha-detalle    { display: none; }
+    .curso-barra       { grid-area: 3 / 1 / 4 / -1; }
+
+    .fila-tema {
+        grid-template-columns: 1fr;
+        gap: .6rem;
+    }
+
+    .fila-tema > .estado {
+        justify-self: start;
+    }
+}
+
+/* ---------- Preferencia de menos movimiento ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .flecha-detalle,
+    .barra-progreso > span {
+        transition: none;
+    }
+}

@@ -1,0 +1,195 @@
+:root {
+    --azul: #2458a6;
+    --azul-oscuro: #193f79;
+    --fondo: #f3f6fb;
+    --texto: #243247;
+    --borde: #dce4ef;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    line-height: 1.6;
+}
+
+.contenedor-rutas {
+    width: min(1100px, 92%);
+    margin: 32px auto;
+}
+
+.navegacion-rutas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+a {
+    color: var(--azul);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.encabezado-rutas {
+    margin-bottom: 28px;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: clamp(26px, 4vw, 36px);
+    color: var(--azul-oscuro);
+}
+
+h2,
+h3,
+h4 {
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.tarjeta-ruta {
+    background: white;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgb(25 63 121 / 5%);
+}
+
+.tarjeta-ruta h2,
+.tarjeta-ruta h3 {
+    margin-top: 0;
+}
+
+p {
+    overflow-wrap: anywhere;
+}
+
+.campo {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #bbc9dc;
+    border-radius: 8px;
+    background: white;
+    color: var(--texto);
+    font: inherit;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid var(--azul);
+    outline-offset: 2px;
+}
+
+button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 8px;
+    background: var(--azul);
+    color: white;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--azul-oscuro);
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid #679af0;
+    outline-offset: 3px;
+}
+
+.tarjeta-ruta > form + form,
+.tarjeta-ruta > a + form {
+    margin-top: 16px;
+}
+
+.mensaje-error,
+.mensaje-exito {
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: 1px solid;
+    margin-bottom: 20px;
+}
+
+.mensaje-error {
+    background: #fff0f0;
+    color: #8c2323;
+    border-color: #efbcbc;
+}
+
+.mensaje-exito {
+    background: #edf8f0;
+    color: #24683b;
+    border-color: #b8dfc4;
+}
+
+.curso-ruta {
+    padding: 18px;
+    margin-top: 16px;
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    background: #f8faff;
+}
+
+.curso-ruta h4 {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.curso-ruta form {
+    margin-top: 14px;
+}
+
+.curso-ruta input[type="number"] {
+    max-width: 140px;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 600px) {
+    .contenedor-rutas {
+        margin: 20px auto;
+    }
+
+    .tarjeta-ruta {
+        padding: 18px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .curso-ruta input[type="number"] {
+        max-width: 100%;
+    }
+}

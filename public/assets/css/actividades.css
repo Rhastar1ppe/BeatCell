@@ -1,0 +1,816 @@
+/* 1. Reset base y variables de diseño */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    color: #243247;
+    line-height: 1.6;
+}
+
+/* 2. Contenedor principal */
+main,
+.contenedor-actividades {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 28px 20px;
+}
+
+/* Enlaces de regreso */
+.btn-volver,
+main > a[href="actividades.php"] {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #205cc4;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+    transition: color 0.2s ease;
+}
+
+.btn-volver:hover,
+main > a[href="actividades.php"]:hover {
+    color: #164998;
+    text-decoration: underline;
+}
+
+/* 3. Encabezados de página */
+.encabezado-actividades,
+main > h1 {
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 26px;
+    color: #243247;
+    margin: 0 0 8px;
+    overflow-wrap: anywhere;
+}
+
+.descripcion-actividad,
+.encabezado-actividades p,
+main > p {
+    margin: 0 0 16px;
+    color: #576579;
+}
+
+/* 4. Lista de actividades (actividades.php) */
+.lista-actividades {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.tarjeta-actividad {
+    background: #ffffff;
+    border: 1px solid #dde3eb;
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tarjeta-actividad.actividad-realizada {
+    border-color: #86c9a5;
+    background: #f0faf4;
+}
+
+.estado-actividad {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border: 1px solid #a9dabb;
+    border-radius: 999px;
+    background: #e3f5e9;
+    color: #176b3a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.estado-actividad > span {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.tarjeta-actividad:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.actividad-tipo {
+    display: inline-block;
+    align-self: flex-start;
+    background: #e8f0fe;
+    color: #205cc4;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.tarjeta-actividad h2 {
+    font-size: 20px;
+    margin: 0 0 10px;
+    color: #243247;
+}
+
+.tarjeta-actividad p {
+    margin: 4px 0;
+    color: #576579;
+    font-size: 14px;
+}
+
+.formulario-actividad {
+    margin-bottom: 24px;
+    padding: 22px;
+    border: 1px solid #dde3eb;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.formulario-actividad h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+}
+
+.formulario-actividad-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.formulario-actividad-grid label {
+    display: grid;
+    gap: 6px;
+    color: #576579;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.formulario-actividad-grid input,
+.formulario-actividad-grid select,
+.formulario-actividad-grid textarea {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #bcc5d1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #243247;
+    font: inherit;
+    font-weight: normal;
+}
+
+.formulario-actividad-grid textarea {
+    resize: vertical;
+}
+
+.btn-crear-actividad {
+    width: auto;
+    margin-top: 16px;
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 6px;
+    background: #205cc4;
+    color: #ffffff;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-crear-actividad:hover {
+    background: #164998;
+}
+
+.mensaje-exito {
+    margin: 16px 0;
+    padding: 14px 16px;
+    border: 1px solid #9ac7a4;
+    border-radius: 8px;
+    background: #eef8f0;
+    color: #205a2d;
+}
+
+.formulario-actividad :focus-visible {
+    outline: 3px solid rgba(32, 92, 196, .3);
+    outline-offset: 2px;
+}
+
+/* 5. Temporizador flotante (actividad.php) */
+#contador-tiempo {
+    position: sticky;
+    top: 16px;
+    z-index: 10;
+    background: #243247;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    text-align: center;
+}
+
+/* 6. Tarjetas de preguntas (actividad.php) */
+#form-actividad {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 20px;
+}
+
+.tarjeta-pregunta {
+    background: #ffffff;
+    border: 1px solid #dde3eb;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.encabezado-pregunta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #dde3eb;
+}
+
+.numero-pregunta {
+    font-size: 14px;
+    font-weight: bold;
+    color: #205cc4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.puntos-pregunta {
+    font-size: 13px;
+    font-weight: bold;
+    background: #f4f6f9;
+    color: #576579;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.texto-pregunta {
+    font-size: 18px;
+    font-weight: bold;
+    color: #243247;
+    margin: 0 0 16px;
+    line-height: 1.4;
+}
+
+.audio-pregunta {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 0 16px;
+}
+
+/* Imágenes de preguntas */
+.contenedor-imagen-pregunta {
+    margin-bottom: 16px;
+}
+
+.imagen-pregunta {
+    display: block;
+    max-width: 100%;
+    max-height: 320px;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #dde3eb;
+    object-fit: contain;
+}
+
+/* Contenedor y tarjetas de opciones */
+.opciones-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.opcion-respuesta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px solid #dde3eb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    user-select: none;
+}
+
+.opcion-respuesta:hover {
+    background: #edf2f7;
+    border-color: #bcc5d1;
+}
+
+.opcion-respuesta input[type="radio"] {
+    accent-color: #205cc4;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.texto-opcion {
+    flex-grow: 1;
+    font-size: 15px;
+    color: #243247;
+}
+
+.imagen-opcion {
+    max-width: 120px;
+    max-height: 80px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #dde3eb;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Respuestas visuales: imagen amplia arriba y botón de respuesta debajo */
+.opciones-imagenes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-content: start;
+    align-items: center;
+    min-width: 0;
+    gap: 0 10px;
+    padding: 12px;
+    border: 0;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen:nth-child(4n + 1) {
+    background: #e21b3c;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen:nth-child(4n + 2) {
+    background: #1368ce;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen:nth-child(4n + 3) {
+    background: #6f2da8;
+    color: #ffffff;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen:nth-child(4n + 4) {
+    background: #26890c;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen:hover {
+    filter: brightness(0.94);
+}
+
+.opciones-imagenes .opcion-respuesta-imagen:focus-within {
+    outline: 3px solid #243247;
+    outline-offset: 3px;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen input[type="radio"] {
+    grid-column: 1;
+    grid-row: 2;
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    accent-color: currentColor;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen .texto-opcion {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    color: inherit;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.opciones-imagenes .opcion-respuesta-imagen .imagen-opcion {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    max-width: none;
+    height: 240px;
+    max-height: none;
+    margin-bottom: 12px;
+    background: #ffffff;
+    object-fit: contain;
+}
+
+/* Campo para preguntas tipo "completar" */
+.campo-completar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.campo-completar label {
+    font-weight: bold;
+    font-size: 14px;
+    color: #576579;
+}
+
+.campo-completar input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 15px;
+    border: 1px solid #bcc5d1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #243247;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-completar input[type="text"]:focus {
+    border-color: #205cc4;
+    box-shadow: 0 0 0 3px rgba(32, 92, 196, 0.15);
+    outline: none;
+}
+
+/* 7. Botones de acción general */
+button,
+.boton,
+.btn-resolver,
+.btn-enviar {
+    display: inline-block;
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font: inherit;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.btn-resolver,
+.btn-enviar,
+.boton {
+    background: #205cc4;
+    color: #ffffff;
+}
+
+.btn-resolver:hover,
+.btn-enviar:hover,
+.boton:hover {
+    background: #164998;
+}
+
+button:focus-visible,
+.btn-resolver:focus-visible,
+.btn-enviar:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 3px solid #243247;
+    outline-offset: 2px;
+}
+
+/* 8. Tarjetas de resultados y alertas */
+.mensaje-error,
+[role="alert"] {
+    padding: 16px;
+    background: #fff0f0;
+    border: 1px solid #d98f8f;
+    border-radius: 8px;
+    color: #900c0c;
+    font-weight: bold;
+    margin: 16px 0;
+}
+
+.mensaje-info {
+    padding: 16px;
+    background: #e8f0fe;
+    border: 1px solid #bcc5d1;
+    border-radius: 8px;
+    color: #205cc4;
+    font-weight: bold;
+}
+
+.tarjeta-resultado {
+    background: #ffffff;
+    border: 1px solid #dde3eb;
+    border-radius: 10px;
+    padding: 24px;
+    margin-top: 16px;
+}
+
+.tarjeta-resultado h2 {
+    margin-top: 0;
+    color: #205cc4;
+}
+
+/* 9. Adaptación móvil (Responsive) */
+@media (max-width: 600px) {
+    .lista-actividades {
+        grid-template-columns: 1fr;
+    }
+
+    main,
+    .contenedor-actividades {
+        padding: 20px 16px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .tarjeta-pregunta {
+        padding: 18px;
+    }
+
+    .formulario-actividad-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .texto-pregunta {
+        font-size: 16px;
+    }
+
+    .opcion-respuesta {
+        display: grid;
+        grid-template-columns: 20px minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .opcion-respuesta input[type="radio"] {
+        margin-top: 2px;
+    }
+
+    .texto-opcion {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .imagen-opcion {
+        grid-column: 2;
+        width: 100%;
+        max-width: 240px;
+        max-height: 180px;
+    }
+
+    .opciones-imagenes {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .opciones-imagenes .opcion-respuesta-imagen .imagen-opcion {
+        height: 260px;
+    }
+
+    #contador-tiempo {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+}
+
+/* 9. Selector de tiempo de la actividad (gestión) */
+.formulario-actividad .grupo-tiempo {
+    grid-column: 1 / -1;
+    min-width: 0;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid #dde3eb;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.formulario-actividad .grupo-tiempo legend {
+    padding: 0 6px;
+    color: #243247;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.grupo-tiempo .modos-tiempo {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.formulario-actividad .grupo-tiempo .modo-tiempo {
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+
+.formulario-actividad .grupo-tiempo .modo-tiempo input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+}
+
+.grupo-tiempo .modo-contenido {
+    display: grid;
+    gap: 2px;
+    height: 100%;
+    padding: 12px 14px;
+    border: 2px solid #bcc5d1;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.grupo-tiempo .modo-contenido strong {
+    color: #243247;
+    font-size: 15px;
+}
+
+.grupo-tiempo .modo-contenido small {
+    color: #576579;
+    font-size: 12.5px;
+    font-weight: normal;
+    line-height: 1.35;
+}
+
+.grupo-tiempo .modo-tiempo input:checked + .modo-contenido {
+    border-color: #205cc4;
+    background: #eaf1fd;
+}
+
+.grupo-tiempo .modo-tiempo input:focus-visible + .modo-contenido {
+    outline: 3px solid rgba(32, 92, 196, 0.35);
+    outline-offset: 2px;
+}
+
+.grupo-tiempo .panel-tiempo {
+    margin-top: 14px;
+}
+
+.grupo-tiempo .panel-tiempo[hidden] {
+    display: none;
+}
+
+.grupo-tiempo .etiqueta-panel {
+    display: block;
+    margin-bottom: 8px;
+    color: #576579;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.grupo-tiempo .selector-numero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.formulario-actividad .grupo-tiempo .selector-numero input {
+    width: 96px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.formulario-actividad .grupo-tiempo .paso-tiempo {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid #bcc5d1;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #205cc4;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.formulario-actividad .grupo-tiempo .paso-tiempo:hover {
+    background: #eaf1fd;
+}
+
+.grupo-tiempo .unidad-tiempo {
+    color: #576579;
+    font-weight: bold;
+}
+
+.grupo-tiempo .atajos-tiempo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.formulario-actividad .grupo-tiempo .chip-tiempo {
+    width: auto;
+    padding: 6px 12px;
+    border: 1px solid #bcc5d1;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #243247;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.formulario-actividad .grupo-tiempo .chip-tiempo:hover {
+    border-color: #205cc4;
+}
+
+.formulario-actividad .grupo-tiempo .chip-tiempo.activo {
+    border-color: #205cc4;
+    background: #205cc4;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.grupo-tiempo .resumen-tiempo {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-left: 4px solid #205cc4;
+    background: #ffffff;
+    color: #243247;
+    font-size: 14px;
+}
+
+@media (max-width: 640px) {
+    .grupo-tiempo .modos-tiempo {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 10. Modo "tiempo por pregunta" (actividad.php) */
+.oculta {
+    display: none;
+}
+
+.barra-pregunta {
+    position: sticky;
+    top: 16px;
+    z-index: 10;
+    margin: 20px 0;
+    padding: 12px 20px;
+    border-radius: 8px;
+    background: #243247;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.3s ease;
+}
+
+.barra-pregunta.urgente {
+    background: #a12626;
+}
+
+.barra-pregunta-datos {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.barra-pregunta-pista {
+    height: 6px;
+    margin-top: 10px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+}
+
+.barra-pregunta-progreso {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    transition: width 1s linear;
+}
+
+.btn-siguiente {
+    display: block;
+    width: 100%;
+    margin-top: 16px;
+    background: #205cc4;
+    color: #ffffff;
+}
+
+.btn-siguiente:hover {
+    background: #164998;
+}

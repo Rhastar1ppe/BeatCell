@@ -1,0 +1,155 @@
+.barra-estudiante {
+	width: min(1120px, calc(100% - 32px));
+	margin: 18px auto 0;
+	padding: 12px 16px;
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 20px;
+	border: 1px solid #dce4ef;
+	border-radius: 14px;
+	background: #fff;
+	box-shadow: 0 8px 24px rgb(30 52 82 / 7%);
+	color: #243247;
+}
+
+.marca-estudiante {
+	display: flex;
+	flex-direction: column;
+	width: max-content;
+	color: #205cc4;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.marca-estudiante-nombre {
+	font-size: 1.15rem;
+	font-weight: 800;
+	letter-spacing: .01em;
+}
+
+.marca-estudiante-subtitulo {
+	margin-top: 2px;
+	color: #66758a;
+	font-size: .7rem;
+}
+
+.navegacion-estudiante {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	min-width: 0;
+}
+
+.navegacion-estudiante a {
+	padding: 9px 11px;
+	border-radius: 9px;
+	color: #45566d;
+	font-size: .92rem;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+	transition: background-color .15s ease, color .15s ease;
+}
+
+.navegacion-estudiante a:hover,
+.navegacion-estudiante a[aria-current="page"] {
+	background: #eaf1ff;
+	color: #174b9f;
+}
+
+.cuenta-estudiante {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.nombre-estudiante {
+	max-width: 150px;
+	overflow: hidden;
+	color: #45566d;
+	font-size: .88rem;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cuenta-estudiante form {
+	margin: 0;
+}
+
+.cuenta-estudiante button {
+	padding: 8px 10px;
+	border: 1px solid #d4deeb;
+	border-radius: 8px;
+	background: #fff;
+	color: #34455c;
+	font: inherit;
+	font-size: .84rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.cuenta-estudiante button:hover {
+	border-color: #b8c9e4;
+	background: #f5f8fd;
+}
+
+.estado-evaluacion {
+	justify-self: end;
+	padding: 8px 12px;
+	border-radius: 999px;
+	background: #fff5db;
+	color: #78530b;
+	font-size: .88rem;
+	font-weight: 700;
+}
+
+.barra-estudiante a:focus-visible,
+.barra-estudiante button:focus-visible {
+	outline: 3px solid #2c65c8;
+	outline-offset: 3px;
+}
+
+.barra-estudiante + main {
+	padding-top: 20px;
+}
+
+@media (max-width: 920px) {
+	.barra-estudiante {
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 10px 16px;
+	}
+
+	.navegacion-estudiante {
+		grid-column: 1 / -1;
+		grid-row: 2;
+		justify-content: flex-start;
+		overflow-x: auto;
+		padding-bottom: 2px;
+		scrollbar-width: thin;
+	}
+}
+
+@media (max-width: 520px) {
+	.barra-estudiante {
+		width: calc(100% - 20px);
+		margin: 10px auto 0;
+		padding: 10px;
+		gap: 10px;
+	}
+
+	.marca-estudiante-subtitulo {
+		font-size: .63rem;
+	}
+
+	.nombre-estudiante {
+		display: none;
+	}
+
+	.navegacion-estudiante a {
+		padding: 8px 10px;
+		font-size: .85rem;
+	}
+}

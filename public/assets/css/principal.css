@@ -1,0 +1,126 @@
+* {
+    box-sizing: border-box; /* el padding y el borde cuentan dentro del ancho */
+}
+body {
+    margin: 0; /* quita el margen por defecto */
+    font-family: Arial, sans-serif; /* tipo de letra */
+    background: #f4f6f9; /* fondo gris claro */
+    color: #243247; /* color del texto */
+}
+.contenedor {
+    max-width: 920px; /* ancho máximo del contenido */
+    margin: auto; /* centra el contenedor */
+    padding: 28px 20px; /* espacio interno */
+}
+header {
+    display: flex; /* organiza los elementos en fila */
+    justify-content: space-between; /* separa los extremos */
+    align-items: center; /* centra verticalmente */
+    gap: 20px; /* espacio entre elementos */
+    flex-wrap: wrap; /* permite saltar de línea si no caben */
+}
+.marca {
+    font-size: 26px; /* tamaño del texto */
+    font-weight: bold; /* negrita */
+    margin: 0 0 6px; /* solo margen inferior */
+    color: #205cc4; /* azul */
+}
+.subtitulo {
+    margin: 0; /* sin margen */
+    color: #576579; /* gris azulado */
+}
+button, .boton {
+    display: inline-block; /* permite aplicar padding como bloque en línea */
+    padding: 12px 18px; /* espacio interno */
+    border-radius: 6px; /* esquinas redondeadas */
+    font: inherit; /* hereda la fuente del padre */
+    cursor: pointer; /* manito al pasar el mouse */
+}
+button {
+    border: 1px solid #bcc5d1; /* borde gris */
+    background: white; /* fondo blanco */
+    color: #243247; /* color del texto */
+}
+.bienvenida {
+    margin: 30px 0 24px; /* espacio arriba y abajo */
+    padding: 26px; /* espacio interno */
+    background: white; /* fondo blanco */
+    border: 1px solid #dde3eb; /* borde gris claro */
+    border-radius: 10px; /* esquinas redondeadas */
+}
+h1 {
+    font-size: 26px; /* tamaño del título */
+    margin: 0 0 12px; /* solo margen inferior */
+    overflow-wrap: anywhere; /* corta palabras largas para que no se salgan */
+}
+p { line-height: 1.6; } /* separación entre líneas */
+.datos { color: #576579; overflow-wrap: anywhere; } /* gris azulado, corta textos largos */
+.opciones {
+    display: grid; /* diseño en cuadrícula */
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columnas iguales */
+    gap: 20px; /* espacio entre tarjetas */
+}
+.tarjeta {
+    background: white; /* fondo blanco */
+    padding: 24px; /* espacio interno */
+    border: 1px solid #dde3eb; /* borde gris claro */
+    border-radius: 10px; /* esquinas redondeadas */
+}
+h2 { margin: 0; font-size: 21px; } /* subtítulo sin margen */
+.boton {
+    background: #205cc4; /* fondo azul */
+    color: white; /* texto blanco */
+    text-decoration: none; /* quita el subrayado del enlace */
+}
+.boton:hover { background: #164998; } /* azul más oscuro al pasar el mouse */
+a:focus-visible, button:focus-visible { outline: 3px solid #243247; outline-offset: 4px; } /* contorno visible con teclado */
+footer {
+    margin-top: 28px; /* espacio arriba */
+    color: #576579; /* gris azulado */
+    font-size: 14px; /* texto pequeño */
+}
+.resumen {
+    display: grid; /* diseño en cuadrícula */
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columnas iguales */
+    gap: 16px; /* espacio entre contadores */
+    margin: 24px 0; /* espacio arriba y abajo */
+}
+.contador {
+    background: white; /* fondo blanco */
+    border: 1px solid #dde3eb; /* borde gris claro */
+    padding: 20px; /* espacio interno */
+    border-radius: 10px; /* esquinas redondeadas */
+}
+.contador strong {
+    display: block; /* ocupa su propia línea */
+    font-size: 30px; /* número grande */
+    margin-bottom: 8px; /* espacio debajo */
+    color: #205cc4; /* azul */
+}
+.resultados { margin-top: 24px; } /* espacio arriba de los resultados */
+.tabla { overflow-x: auto; margin-top: 16px; } /* scroll horizontal si no cabe, espacio arriba */
+table {
+    width: 100%; /* ocupa todo el ancho */
+    border-collapse: collapse; /* une los bordes de las celdas */
+    text-align: left; /* texto a la izquierda */
+}
+th, td { padding: 12px; border-bottom: 1px solid #dde3eb; } /* espacio interno y línea inferior */
+th { background: #f4f6f9; } /* encabezado con fondo gris claro */
+caption {
+    text-align: left; /* título de la tabla a la izquierda */
+    margin-bottom: 12px; /* espacio debajo */
+    color: #576579; /* gris azulado */
+}
+.error {
+    padding: 16px; /* espacio interno */
+    background: #fff0f0; /* fondo rojo muy claro */
+    border: 1px solid #d98f8f; /* borde rojo suave */
+    border-radius: 6px; /* esquinas redondeadas */
+}
+@media (max-width: 600px) {
+    .resumen { grid-template-columns: 1fr; } /* en móvil: contadores en 1 columna */
+}
+@media (max-width: 600px) {
+    .opciones { grid-template-columns: 1fr; } /* en móvil: tarjetas en 1 columna */
+    h1 { font-size: 23px; } /* en móvil: título más pequeño */
+}

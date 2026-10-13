@@ -14,7 +14,13 @@ ALTER TABLE `preguntas`
   ADD COLUMN IF NOT EXISTS `audio` varchar(255) DEFAULT NULL AFTER `imagen`;
 
 ALTER TABLE `preguntas`
-  MODIFY `tipo` enum('opcion_multiple','verdadero_falso','completar','imagen','audio') NOT NULL;
+  ADD COLUMN IF NOT EXISTS `video_url` varchar(2048) DEFAULT NULL AFTER `audio`;
+
+ALTER TABLE `preguntas`
+  ADD COLUMN IF NOT EXISTS `seleccion_multiple` tinyint(1) NOT NULL DEFAULT 0 AFTER `video_url`;
+
+ALTER TABLE `preguntas`
+  MODIFY `tipo` enum('opcion_multiple','verdadero_falso','completar','imagen','audio','video') NOT NULL;
 
 -- Modo de tiempo y fecha límite de actividades
 ALTER TABLE `actividades`

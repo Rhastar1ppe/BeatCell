@@ -98,11 +98,12 @@ CREATE TABLE `preguntas` (
   `id_pregunta` int(11) NOT NULL,
   `id_actividad` int(11) NOT NULL,
   `pregunta` text NOT NULL,
-  `tipo` enum('opcion_multiple','verdadero_falso','completar','imagen','audio') NOT NULL,
+  `tipo` enum('opcion_multiple','verdadero_falso','completar','imagen','audio','video') NOT NULL,
   `puntos` int(11) NOT NULL DEFAULT 1,
   `imagen` varchar(255) DEFAULT NULL,
   `audio` varchar(255) DEFAULT NULL,
   `video_url` varchar(2048) DEFAULT NULL,
+  `seleccion_multiple` tinyint(1) NOT NULL DEFAULT 0,
   `tiempo_limite` int(11) DEFAULT NULL,
   `explicacion` text DEFAULT NULL,
   `estado` enum('Activo','Inactivo') NOT NULL DEFAULT 'Activo'

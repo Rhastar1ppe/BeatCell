@@ -615,7 +615,7 @@ class PreguntaController {
 
                         error_log('BeatCell - error al guardar pregunta: ' . $e->getMessage());
 
-                        $mensaje = ['tipo' => 'danger', 'texto' => 'No se pudo guardar la pregunta. Revisa que la actividad exista e inténtalo de nuevo.'];
+                        $mensaje = ['tipo' => 'danger', 'texto' => 'No se pudo guardar la pregunta. Verifica que la base de datos esté actualizada e inténtalo de nuevo.'];
 
                     }
 
@@ -667,4 +667,4 @@ class PreguntaController {
 
     }
 
-}   
+}

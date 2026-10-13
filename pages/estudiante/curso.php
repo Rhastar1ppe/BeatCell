@@ -86,6 +86,27 @@ $e = static fn($valor): string => htmlspecialchars(
 	ENT_QUOTES | ENT_SUBSTITUTE,
 	'UTF-8'
 );
+
+$formatearTiempo = static function ($valor): string {
+
+    $segundos = max(0, (int) $valor);
+
+    if ($segundos === 0) {
+
+        return 'Sin límite';
+
+    }if ($segundos < 60) {
+
+        return $segundos . ' s';
+
+    }
+
+    $minutos = intdiv($segundos, 60);
+    $resto = $segundos % 60;
+    return $resto === 0 ? $minutos . ' min' : $minutos . ' min ' . $resto . ' s';
+
+};
+
 ?>
 <!doctype html>
 <html lang="es">
@@ -139,6 +160,16 @@ $e = static fn($valor): string => htmlspecialchars(
 						</summary>
 						<div class="modulo-contenido">
 							<?php if (!empty($modulo['descripcion'])): ?><p class="texto"><?= $e($modulo['descripcion']) ?></p><?php endif; ?>
+
+							<?php $videoModulo = (string) ($modulo['video_url'] ?? ''); ?>
+							<?php if (preg_match('#^public/uploads/videos/[a-f0-9]{32}\.mp4$#', $videoModulo) === 1): ?>
+								<video class="video-modulo" controls preload="metadata" style="display:block;width:100%;max-width:720px;margin:0 0 1rem;border-radius:8px;">
+									<source src="../../<?= $e($videoModulo) ?>" type="video/mp4">
+									Tu navegador no soporta la reproducción de video.
+								</video>
+							<?php elseif (preg_match('#^https?://#i', $videoModulo) === 1): ?>
+								<p class="texto"><a href="<?= $e($videoModulo) ?>" target="_blank" rel="noopener noreferrer">Ver video del módulo</a></p>
+							<?php endif; ?>
 
 							<?php $temas = $temasPorModulo[(int) $modulo['id_modulo']] ?? []; ?>
 							<?php if ($temas === []): ?>

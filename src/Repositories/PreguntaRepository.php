@@ -44,8 +44,8 @@ class PreguntaRepository{
         try {
             $this->db->beginTransaction();
 
-            $sql = "INSERT INTO preguntas (id_actividad, pregunta, tipo, puntos, imagen, audio, tiempo_limite, explicacion, estado) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO preguntas (id_actividad, pregunta, tipo, puntos, imagen, audio, video_url, seleccion_multiple, tiempo_limite, explicacion, estado) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 $data['id_actividad'],
@@ -54,6 +54,8 @@ class PreguntaRepository{
                 $data['puntos'] ?? 1,
                 $data['imagen'] ?? null,
                 $data['audio'] ?? null,
+                $data['video_url'] ?? null,
+                !empty($data['seleccion_multiple']) ? 1 : 0,
                 $data['tiempo_limite'] ?? null,
                 $data['explicacion'] ?? null,
                 $data['estado'] ?? 'Activo'
@@ -71,7 +73,7 @@ class PreguntaRepository{
                         $idPregunta,
                         $opcion['texto'] ?? '',
                         $opcion['imagen'] ?? null,
-                        $opcion['correcta'] ? 1 : 0,
+                        !empty($opcion['correcta']) ? 1 : 0,
                         $opcion['retroalimentacion'] ?? null
                     ]);
                 }
@@ -90,7 +92,7 @@ class PreguntaRepository{
         try {
             $this->db->beginTransaction();
 
-            $sql = "UPDATE preguntas SET id_actividad = ?, pregunta = ?, tipo = ?, puntos = ?, imagen = ?, audio = ?, tiempo_limite = ?, explicacion = ?, estado = ? 
+            $sql = "UPDATE preguntas SET id_actividad = ?, pregunta = ?, tipo = ?, puntos = ?, imagen = ?, audio = ?, video_url = ?, seleccion_multiple = ?, tiempo_limite = ?, explicacion = ?, estado = ? 
                     WHERE id_pregunta = ?";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
@@ -100,6 +102,8 @@ class PreguntaRepository{
                 $data['puntos'] ?? 1,
                 $data['imagen'] ?? null,
                 $data['audio'] ?? null,
+                $data['video_url'] ?? null,
+                !empty($data['seleccion_multiple']) ? 1 : 0,
                 $data['tiempo_limite'] ?? null,
                 $data['explicacion'] ?? null,
                 $data['estado'] ?? 'Activo',

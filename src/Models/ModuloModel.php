@@ -21,6 +21,7 @@ class ModuloModel
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
     public function obtenerPorCurso(int $idCurso): array
     {
         $stmt = $this->db->prepare(
@@ -49,13 +50,15 @@ class ModuloModel
     {
         [$idCurso, $nombre, $descripcion, $orden] = $this->validar($datos);
 
+        $video = $this->normalizarVideo($datos['video_url'] ?? null);
+
         $stmt = $this->db->prepare(
-            "INSERT INTO modulos (id_curso, nombre, descripcion, orden)
-             VALUES (?, ?, ?, ?)"
+            "INSERT INTO modulos (id_curso, nombre, descripcion, video_url, orden)
+             VALUES (?, ?, ?, ?, ?)"
         );
 
         try {
-            $stmt->execute([$idCurso, $nombre, $descripcion, $orden]);
+            $stmt->execute([$idCurso, $nombre, $descripcion, $video, $orden]);
         } catch (PDOException $e) {
             if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
                 throw new InvalidArgumentException(
@@ -77,20 +80,24 @@ class ModuloModel
 
         [$idCurso, $nombre, $descripcion, $orden] = $this->validar($datos);
 
+        $campos = 'id_curso = ?, nombre = ?, descripcion = ?, orden = ?';
+        $parametros = [$idCurso, $nombre, $descripcion, $orden];
+
+        // El video solo se toca si el formulario lo envía; así otras
+        // llamadas a actualizar() no borran el video del módulo.
+        if (array_key_exists('video_url', $datos)) {
+            $campos .= ', video_url = ?';
+            $parametros[] = $this->normalizarVideo($datos['video_url']);
+        }
+
+        $parametros[] = $idModulo;
+
         $stmt = $this->db->prepare(
-            "UPDATE modulos
-             SET id_curso = ?, nombre = ?, descripcion = ?, orden = ?
-             WHERE id_modulo = ?"
+            "UPDATE modulos SET $campos WHERE id_modulo = ?"
         );
 
         try {
-            return $stmt->execute([
-                $idCurso,
-                $nombre,
-                $descripcion,
-                $orden,
-                $idModulo
-            ]);
+            return $stmt->execute($parametros);
         } catch (PDOException $e) {
             if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
                 throw new InvalidArgumentException(
@@ -115,6 +122,40 @@ class ModuloModel
         );
 
         return $stmt->execute([$estado, $idModulo]);
+    }
+
+    /**
+     * Acepta una ruta local de video subido (public/uploads/videos/xxx.mp4)
+     * o una URL http(s). Cualquier otro valor se rechaza.
+     */
+    private function normalizarVideo(mixed $video): ?string
+    {
+        if ($video === null) {
+            return null;
+        }
+
+        $video = trim((string) $video);
+
+        if ($video === '') {
+            return null;
+        }
+
+        $esLocal = preg_match(
+            '#^public/uploads/videos/[a-f0-9]{32}\.mp4$#',
+            $video
+        ) === 1;
+
+        $esUrl = strlen($video) <= 2048
+            && filter_var($video, FILTER_VALIDATE_URL) !== false
+            && preg_match('#^https?://#i', $video) === 1;
+
+        if (!$esLocal && !$esUrl) {
+            throw new InvalidArgumentException(
+                'El video del módulo no es válido.'
+            );
+        }
+
+        return $video;
     }
 
     private function validar(array $datos): array

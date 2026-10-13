@@ -67,3 +67,5 @@ $enlacesNavegacion = [
 		</div>
 	<?php endif; ?>
 </div>
+
+<?php if (!$actividadEnCurso) { require __DIR__ . '/_chatbot.php'; } ?>

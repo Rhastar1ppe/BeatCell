@@ -9,13 +9,15 @@ class PreguntaModel{
     private int $puntos;
     private ?string $imagen;
     private ?string $audio;
+    private ?string $video_url;
+    private bool $seleccion_multiple;
     private ?int $tiempo_limite;
     private ?string $explicacion;
     private string $estado;
     private array $opciones;
     private array $errores = [];
 
-    const TIPOS_VALIDOS = ['verdadero_falso', 'completar', 'imagen', 'audio'];
+    const TIPOS_VALIDOS = ['verdadero_falso', 'completar', 'imagen', 'audio', 'opcion_multiple', 'video'];
     const ESTADOS_VALIDOS = ['Activo', 'Inactivo'];
 
     public function __construct(array $data = [], array $opciones = []){
@@ -27,6 +29,8 @@ class PreguntaModel{
         $this->puntos = (int) ($data['puntos'] ?? 1);
         $this->imagen = $data['imagen'] ?? null;
         $this->audio = !empty($data['audio']) ? (string) $data['audio'] : null;
+        $this->video_url = !empty($data['video_url']) ? trim((string) $data['video_url']) : null;
+        $this->seleccion_multiple = !empty($data['seleccion_multiple']);
         $this->tiempo_limite = isset($data['tiempo_limite']) && $data['tiempo_limite'] !== '' ? (int) $data['tiempo_limite'] : null;
         $this->explicacion = trim($data['explicacion'] ?? '');
         $this->estado = $data['estado'] ?? 'Activo';
@@ -62,9 +66,17 @@ class PreguntaModel{
             $this->errores[] = "Las preguntas de audio requieren un archivo de audio.";
         }
 
-        if ($this->tipo === 'imagen' || $this->tipo === 'audio') {
+        if ($this->video_url !== null && !filter_var($this->video_url, FILTER_VALIDATE_URL) && !preg_match('~^/?[a-zA-Z0-9_./-]+\.mp4$~i', $this->video_url)) {
+            $this->errores[] = 'La dirección del video debe ser una URL válida o una ruta MP4.';
+        }
+
+        if ($this->tipo === 'video' && $this->video_url === null) {
+            $this->errores[] = 'Las preguntas de video requieren un video.';
+        }
+
+        if (in_array($this->tipo, ['imagen', 'audio', 'video', 'opcion_multiple'], true)) {
             if (count($this->opciones) < 2) {
-                $this->errores[] = "Las preguntas de imagen y audio deben tener al menos 2 opciones.";
+                $this->errores[] = "Las preguntas de opciones, imagen, audio y video deben tener al menos 2 opciones.";
             }
 
             foreach ($this->opciones as $op) {
@@ -78,8 +90,8 @@ class PreguntaModel{
                 $this->opciones,
                 static fn (array $opcion): bool => !empty($opcion['correcta'])
             ));
-            if ($cantidadCorrectas !== 1) {
-                $this->errores[] = "Debe marcar exactamente una opción como correcta.";
+            if ($cantidadCorrectas < 1 || (!$this->seleccion_multiple && $cantidadCorrectas !== 1)) {
+                $this->errores[] = $this->seleccion_multiple ? "Debe marcar al menos una opción correcta." : "Debe marcar exactamente una opción como correcta.";
             }
         } elseif ($this->tipo === 'verdadero_falso') {
             if (count($this->opciones) !== 2) {
@@ -126,6 +138,8 @@ class PreguntaModel{
             'puntos' => $this->puntos,
             'imagen' => $this->imagen,
             'audio' => $this->audio,
+            'video_url' => $this->video_url,
+            'seleccion_multiple' => $this->seleccion_multiple ? 1 : 0,
             'tiempo_limite' => $this->tiempo_limite,
             'explicacion' => $this->explicacion,
             'estado' => $this->estado

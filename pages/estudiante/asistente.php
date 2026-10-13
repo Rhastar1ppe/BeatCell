@@ -1,71 +1,108 @@
 <?php
+// Evitar que advertencias o errores de PHP corrompan la respuesta JSON
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-	session_start();
+header('Content-Type: application/json; charset=utf-8');
+
+try {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
+    // 1. Validar que el estudiante haya iniciado sesión
+    $usuario = $_SESSION['usuario'] ?? null;
+    if (!$usuario || empty($usuario['id_usuario'])) {
+        echo json_encode(['ok' => false, 'error' => 'Sesión no válida. Inicia sesión nuevamente.']);
+        exit;
+    }
+
+    // 2. Validar token CSRF del chat
+    $csrfPost = $_POST['csrf_chat'] ?? '';
+    if (empty($_SESSION['csrf_chat']) || !hash_equals($_SESSION['csrf_chat'], $csrfPost)) {
+        echo json_encode(['ok' => false, 'error' => 'Token de seguridad inválido.']);
+        exit;
+    }
+
+    // 3. Incluir la clase Database desde database/database.php
+    $dbPath = __DIR__ . '/../../database/database.php';
+    if (!file_exists($dbPath)) {
+        echo json_encode(['ok' => false, 'error' => 'No se encontró el archivo database/database.php']);
+        exit;
+    }
+
+    require_once $dbPath;
+
+    $db = null;
+    if (class_exists('Database')) {
+        $database = new Database();
+        $db = $database->connect();
+    }
+
+    if (!($db instanceof PDO)) {
+        echo json_encode(['ok' => false, 'error' => 'No se pudo obtener una instancia PDO válida desde la clase Database.']);
+        exit;
+    }
+
+    // 4. Incluir el servicio del chatbot
+    $servicePath = __DIR__ . '/../../src/Services/ChatBotService.php';
+    if (!file_exists($servicePath)) {
+        echo json_encode(['ok' => false, 'error' => 'No se encontró ChatBotService.php en src/Services/']);
+        exit;
+    }
+
+    require_once $servicePath;
+
+    $idUsuario = (int) $usuario['id_usuario'];
+    $chatService = new ChatBotService($db, $idUsuario);
+
+    $accion = $_POST['accion'] ?? '';
+
+    // 5. Manejar acción de inicio del chat
+    if ($accion === 'iniciar') {
+        $saludo = $chatService->saludoInicial();
+        $avisos = $chatService->contarAvisos();
+
+        echo json_encode([
+            'ok' => true,
+            'historial' => [
+                ['remitente' => 'Bot', 'mensaje' => $saludo['texto']]
+            ],
+            'botones' => $saludo['botones'],
+            'avisos' => $avisos
+        ]);
+        exit;
+    }
+
+    // 6. Manejar envío de mensajes del usuario
+    if ($accion === 'mensaje') {
+        $mensajeUsuario = trim($_POST['mensaje'] ?? '');
+        
+        if ($mensajeUsuario === '') {
+            echo json_encode(['ok' => false, 'error' => 'El mensaje no puede estar vacío.']);
+            exit;
+        }
+
+        $respuesta = $chatService->responder($mensajeUsuario);
+        $avisos = $chatService->contarAvisos();
+
+        echo json_encode([
+            'ok' => true,
+            'respuesta' => [
+                'texto' => $respuesta['texto'],
+                'enlaces' => $respuesta['enlaces'],
+                'botones' => $respuesta['botones']
+            ],
+            'avisos' => $avisos
+        ]);
+        exit;
+    }
+
+    echo json_encode(['ok' => false, 'error' => 'Acción no reconocida.']);
+
+} catch (Throwable $e) {
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Error en el servidor: ' . $e->getMessage()
+    ]);
 }
-
-$usuarioNavegacion = $_SESSION['usuario'] ?? [];
-$nombreNavegacion = trim(
-	(string) ($usuarioNavegacion['nombres'] ?? '') . ' ' .
-	(string) ($usuarioNavegacion['apellidos'] ?? '')
-);
-$nombreNavegacion = $nombreNavegacion !== '' ? $nombreNavegacion : 'Estudiante';
-$escaparNavegacion = static fn(mixed $valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
-
-if (empty($_SESSION['csrf_logout'])) {
-	$_SESSION['csrf_logout'] = bin2hex(random_bytes(32));
-}
-
-$archivoNavegacion = basename($_SERVER['SCRIPT_NAME'] ?? '');
-$paginaNavegacion = match ($archivoNavegacion) {
-	'principal.php' => 'inicio',
-	'cursos.php', 'curso.php' => 'cursos',
-	'actividades.php', 'actividad.php' => 'actividades',
-	'progreso.php', 'progreso_vista.php' => 'progreso',
-	'historial.php' => 'historial',
-	default => '',
-};
-$actividadEnCurso = $actividadEnCurso ?? false;
-
-$enlacesNavegacion = [
-	'inicio' => ['Inicio', 'principal.php'],
-	'cursos' => ['Cursos', 'cursos.php'],
-	'actividades' => ['Actividades', 'actividades.php'],
-	'progreso' => ['Mi progreso', 'progreso.php'],
-	'historial' => ['Historial', 'historial.php'],
-];
-?>
-<div class="barra-estudiante">
-	<?php if ($actividadEnCurso): ?>
-		<div class="marca-estudiante">
-			<span class="marca-estudiante-nombre">BeatCell</span>
-			<span class="marca-estudiante-subtitulo">Academia de Tecnología Celular</span>
-		</div>
-		<span class="estado-evaluacion">Evaluación en curso</span>
-	<?php else: ?>
-		<a class="marca-estudiante" href="principal.php" aria-label="BeatCell, ir al inicio">
-			<span class="marca-estudiante-nombre">BeatCell</span>
-			<span class="marca-estudiante-subtitulo">Academia de Tecnología Celular</span>
-		</a>
-		<nav class="navegacion-estudiante" aria-label="Navegación del estudiante">
-			<?php foreach ($enlacesNavegacion as $clave => [$texto, $destino]): ?>
-				<a href="<?= $escaparNavegacion($destino) ?>"<?= $paginaNavegacion === $clave ? ' aria-current="page"' : '' ?>>
-					<?= $escaparNavegacion($texto) ?>
-				</a>
-			<?php endforeach; ?>
-		</nav>
-		<div class="cuenta-estudiante">
-			<span class="nombre-estudiante"><?= $escaparNavegacion($nombreNavegacion) ?></span>
-			<form action="../auth/logout.php" method="post">
-				<input type="hidden" name="csrf_logout" value="<?= $escaparNavegacion($_SESSION['csrf_logout']) ?>">
-				<button type="submit">Cerrar sesión</button>
-			</form>
-		</div>
-	<?php endif; ?>
-</div>
-
-<?php if (!$actividadEnCurso) { require __DIR__ . '/_chatbot.php'; } ?>

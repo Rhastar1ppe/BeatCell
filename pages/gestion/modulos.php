@@ -4,10 +4,7 @@ require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../src/Controllers/CursoController.php';
 require_once __DIR__ . '/../../src/Controllers/ModuloController.php';
 
-AuthMiddleware::requireRole(
-    ['Docente', 'Administrador'],
-    '../auth/login.php'
-);
+AuthMiddleware::requireRole(['Docente', 'Administrador'], '../auth/login.php');
 
 if (empty($_SESSION['csrf_gestion'])) {
     $_SESSION['csrf_gestion'] = bin2hex(random_bytes(32));
@@ -15,46 +12,53 @@ if (empty($_SESSION['csrf_gestion'])) {
 
 function e($valor): string
 {
-    return htmlspecialchars(
-        (string) $valor,
-        ENT_QUOTES | ENT_SUBSTITUTE,
-        'UTF-8'
-    );
+    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+}
+
+/** Borra un video local subido por esta pantalla (ruta ya validada). */
+function eliminarVideoLocal(?string $ruta): void
+{
+    if (
+        is_string($ruta) &&
+        preg_match('#^public/uploads/videos/([a-f0-9]{32}\.mp4)$#', $ruta, $m) === 1
+    ) {
+        $archivo = __DIR__ . '/../../public/uploads/videos/' . $m[1];
+
+        if (is_file($archivo)) {
+            @unlink($archivo);
+        }
+    }
 }
 
 $idCurso = (int) ($_GET['id_curso'] ?? $_POST['id_curso'] ?? 0);
 $idEditar = (int) ($_GET['editar'] ?? 0);
-
 $datos = $_POST;
 $mensaje = null;
+$moduloEditar = null;
+$cursoController = null;
+$moduloController = null;
+$cursos = [];
 $curso = null;
 $modulos = [];
-$moduloEditar = null;
 $archivoNuevo = null;
 
 try {
     $cursoController = new CursoController();
     $moduloController = new ModuloController();
 
-    $curso = $cursoController->obtenerPorId($idCurso);
+    // 1. Obtener todos los cursos para el selector
+    $cursos = method_exists($cursoController, 'obtenerTodos') 
+        ? $cursoController->obtenerTodos() 
+        : (method_exists($cursoController, 'listar') ? $cursoController->listar() : []);
 
-    if (!$curso) {
-        throw new InvalidArgumentException('El curso no existe.');
+    // 2. Si no viene id_curso por parámetro, tomar el ID del primer curso disponible
+    if ($idCurso === 0 && !empty($cursos)) {
+        $idCurso = (int) ($cursos[0]['id_curso'] ?? 0);
     }
 
-    $modulos = $moduloController->listarPorCurso($idCurso);
-
-    if ($idEditar > 0) {
-        $moduloEditar = $moduloController->obtenerPorId($idEditar);
-
-        if (
-            !$moduloEditar ||
-            (int) $moduloEditar['id_curso'] !== $idCurso
-        ) {
-            throw new InvalidArgumentException(
-                'El módulo no existe en este curso.'
-            );
-        }
+    // 3. Obtener los datos del curso actual si existe idCurso
+    if ($idCurso > 0) {
+        $curso = $cursoController->obtenerPorId($idCurso);
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -203,6 +207,12 @@ try {
                 }
 
                 $resultado = 'actualizado';
+
+                $videoAnterior = $moduloActual['video_url'] ?? null;
+
+                if ($videoAnterior !== ($datosGuardar['video_url'] ?? null)) {
+                    eliminarVideoLocal($videoAnterior);
+                }
             }
 
             // El archivo ya está asociado al módulo.
@@ -232,6 +242,18 @@ try {
                 . $idCurso . '&ok=estado'
             );
             exit;
+        }
+    }
+
+    if ($idEditar > 0 && $moduloEditar === null) {
+        $moduloEditar = $moduloController->obtenerPorId($idEditar);
+
+        if (!$moduloEditar || (int) $moduloEditar['id_curso'] !== $idCurso) {
+            $moduloEditar = null;
+
+            throw new InvalidArgumentException(
+                'El módulo no existe en este curso.'
+            );
         }
     }
 
@@ -272,12 +294,21 @@ try {
     ];
 }
 
+if ($moduloController !== null && $idCurso > 0) {
+    try {
+        $modulos = $moduloController->listarPorCurso($idCurso);
+    } catch (Throwable $exception) {
+        error_log('BeatCell - módulos (listado): ' . $exception->getMessage());
+    }
+}
+
 $nombre = $datos['nombre'] ?? ($moduloEditar['nombre'] ?? '');
 $descripcion = $datos['descripcion']
     ?? ($moduloEditar['descripcion'] ?? '');
 $orden = $datos['orden'] ?? ($moduloEditar['orden'] ?? '');
 
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -294,17 +325,34 @@ $orden = $datos['orden'] ?? ($moduloEditar['orden'] ?? '');
 <body class="bg-light">
 
 <div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="h3 mb-1">Módulos</h1>
+            <h1 class="h3 mb-1">Gestión de Módulos</h1>
             <div class="text-muted">
-                <?= e($curso['nombre'] ?? '') ?>
+                Curso actual:
+                <strong><?= e($curso['nombre'] ?? 'Ninguno seleccionado') ?></strong>
             </div>
         </div>
 
-        <a href="cursos.php" class="btn btn-outline-secondary">
-            Volver a cursos
-        </a>
+        <div class="d-flex gap-2 align-items-center">
+            <form method="get" action="modulos.php" class="d-flex align-items-center gap-2">
+                <label for="id_curso_select" class="form-label mb-0 fw-semibold text-nowrap">Curso:</label>
+                <select name="id_curso" id="id_curso_select" class="form-select" onchange="this.form.submit()">
+                    <?php if (empty($cursos)): ?>
+                        <option value="0">No hay cursos disponibles</option>
+                    <?php else: ?>
+                        <?php foreach ($cursos as $c): ?>
+                            <option value="<?= (int) $c['id_curso'] ?>" <?= (int) $c['id_curso'] === $idCurso ? 'selected' : '' ?>>
+                                <?= e($c['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+            </form>
+
+            <a href="cursos.php" class="btn btn-outline-secondary text-nowrap">Volver a cursos</a>
+            <a href="panel.php" class="btn btn-outline-secondary text-nowrap">Panel</a>
+        </div>
     </div>
 
     <?php if ($mensaje): ?>
@@ -316,7 +364,11 @@ $orden = $datos['orden'] ?? ($moduloEditar['orden'] ?? '');
         </div>
     <?php endif; ?>
 
-    <?php if ($curso): ?>
+    <?php if (!$curso): ?>
+        <div class="alert alert-warning">
+            Por favor, selecciona un curso válido para gestionar sus módulos.
+        </div>
+    <?php else: ?>
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="card">

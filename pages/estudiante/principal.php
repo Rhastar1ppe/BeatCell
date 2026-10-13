@@ -62,8 +62,10 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio del estudiante | BeatCell</title>
     <link rel="stylesheet" href="../../public/assets/css/principal.css">
+    <link rel="stylesheet" href="../../public/assets/css/estudiante.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/estudiante.css') ?>">
 </head>
 <body>
+    <?php require __DIR__ . '/_navegacion.php'; ?>
 <main class="contenedor">
     <header>
         <div>
@@ -144,7 +146,7 @@ try {
                             <tr>
                                 <td><?= $escapar($resultado['actividad']) ?></td>
                                 <td><?= (int) $resultado['puntaje_obtenido'] ?> / <?= (int) $resultado['puntaje_total'] ?></td>
-                                <td><?= $escapar(number_format((float) $resultado['porcentaje'], 2)) ?> %</td>
+                                <span><td><?= $escapar(number_format((float) $resultado['porcentaje'], 2)) ?> %</td></span>
                                 <td><?= $escapar($resultado['estado']) ?></td>
                                 <td><?= $escapar($resultado['fecha']) ?></td>
                             </tr>
@@ -157,5 +159,7 @@ try {
     <?php endif; ?>
     <footer>Panel del estudiante · BeatCell</footer>
 </main>
+
 </body>
+
 </html>

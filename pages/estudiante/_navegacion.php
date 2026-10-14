@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
@@ -10,11 +11,6 @@ $nombreNavegacion = trim(
 	(string) ($usuarioNavegacion['apellidos'] ?? '')
 );
 $nombreNavegacion = $nombreNavegacion !== '' ? $nombreNavegacion : 'Estudiante';
-$escaparNavegacion = static fn(mixed $valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
 
 if (empty($_SESSION['csrf_logout'])) {
 	$_SESSION['csrf_logout'] = bin2hex(random_bytes(32));
@@ -53,15 +49,15 @@ $enlacesNavegacion = [
 		</a>
 		<nav class="navegacion-estudiante" aria-label="Navegación del estudiante">
 			<?php foreach ($enlacesNavegacion as $clave => [$texto, $destino]): ?>
-				<a href="<?= $escaparNavegacion($destino) ?>"<?= $paginaNavegacion === $clave ? ' aria-current="page"' : '' ?>>
-					<?= $escaparNavegacion($texto) ?>
+				<a href="<?= e($destino) ?>"<?= $paginaNavegacion === $clave ? ' aria-current="page"' : '' ?>>
+					<?= e($texto) ?>
 				</a>
 			<?php endforeach; ?>
 		</nav>
 		<div class="cuenta-estudiante">
-			<span class="nombre-estudiante"><?= $escaparNavegacion($nombreNavegacion) ?></span>
+			<span class="nombre-estudiante"><?= e($nombreNavegacion) ?></span>
 			<form action="../auth/logout.php" method="post">
-				<input type="hidden" name="csrf_logout" value="<?= $escaparNavegacion($_SESSION['csrf_logout']) ?>">
+				<input type="hidden" name="csrf_logout" value="<?= e($_SESSION['csrf_logout']) ?>">
 				<button type="submit">Cerrar sesión</button>
 			</form>
 		</div>

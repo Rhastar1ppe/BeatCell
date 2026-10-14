@@ -19,6 +19,10 @@ ALTER TABLE `preguntas`
 ALTER TABLE `preguntas`
   ADD COLUMN IF NOT EXISTS `seleccion_multiple` tinyint(1) NOT NULL DEFAULT 0 AFTER `video_url`;
 
+-- Respuestas marcadas en preguntas de selección múltiple
+ALTER TABLE `respuestas_estudiante`
+  ADD COLUMN IF NOT EXISTS `opciones_seleccionadas` text DEFAULT NULL AFTER `id_opcion`;
+
 ALTER TABLE `preguntas`
   MODIFY `tipo` enum('opcion_multiple','verdadero_falso','completar','imagen','audio','video') NOT NULL;
 

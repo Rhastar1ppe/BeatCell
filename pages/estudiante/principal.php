@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 // La sesión contiene los datos guardados al iniciar sesión.
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -20,7 +21,6 @@ if (($_SESSION['rol'] ?? '') !== 'Estudiante') {
 $usuario = $_SESSION['usuario'] ?? [];
 $nombre = trim(($usuario['nombres'] ?? '') . ' ' . ($usuario['apellidos'] ?? ''));
 $nombre = $nombre !== '' ? $nombre : 'Estudiante';
-$escapar = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 
 // Token para que el cierre de sesión provenga del formulario del sistema.
 if (empty($_SESSION['csrf_logout'])) {
@@ -73,23 +73,23 @@ try {
             <p class="subtitulo">Academia de Tecnología Celular</p>
         </div>
         <form action="../auth/logout.php" method="POST">
-            <input type="hidden" name="csrf_logout" value="<?= $escapar($_SESSION['csrf_logout']) ?>">
+            <input type="hidden" name="csrf_logout" value="<?= e($_SESSION['csrf_logout']) ?>">
             <button type="submit">Cerrar sesión</button>
         </form>
     </header>
 
     <section class="bienvenida" aria-labelledby="bienvenida">
-        <h1 id="bienvenida">Bienvenido, <?= $escapar($nombre) ?></h1>
+        <h1 id="bienvenida">Bienvenido, <?= e($nombre) ?></h1>
         <p>Desde aquí puedes consultar tus actividades y revisar el avance de tu aprendizaje.</p>
         <div class="datos">
-            <p><strong>Código:</strong> <?= $escapar($usuario['codigo'] ?? 'No disponible') ?><br>
-            <strong>Correo:</strong> <?= $escapar($usuario['correo'] ?? 'No disponible') ?><br>
+            <p><strong>Código:</strong> <?= e($usuario['codigo'] ?? 'No disponible') ?><br>
+            <strong>Correo:</strong> <?= e($usuario['correo'] ?? 'No disponible') ?><br>
             <strong>Rol:</strong> Estudiante</p>
         </div>
     </section>
 
     <?php if ($errorDatos !== ''): ?>
-        <p class="error" role="alert"><?= $escapar($errorDatos) ?></p>
+        <p class="error" role="alert"><?= e($errorDatos) ?></p>
     <?php else: ?>
         <section class="resumen" aria-label="Resumen del estudiante">
             <div class="contador"><strong><?= (int) ($resumen['realizadas'] ?? 0) ?></strong>Actividades realizadas</div>
@@ -144,11 +144,11 @@ try {
                         <tbody>
                         <?php foreach ($ultimosResultados as $resultado): ?>
                             <tr>
-                                <td><?= $escapar($resultado['actividad']) ?></td>
+                                <td><?= e($resultado['actividad']) ?></td>
                                 <td><?= (int) $resultado['puntaje_obtenido'] ?> / <?= (int) $resultado['puntaje_total'] ?></td>
-                                <span><td><?= $escapar(number_format((float) $resultado['porcentaje'], 2)) ?> %</td></span>
-                                <td><?= $escapar($resultado['estado']) ?></td>
-                                <td><?= $escapar($resultado['fecha']) ?></td>
+                                <span><td><?= e(number_format((float) $resultado['porcentaje'], 2)) ?> %</td></span>
+                                <td><?= e($resultado['estado']) ?></td>
+                                <td><?= e($resultado['fecha']) ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

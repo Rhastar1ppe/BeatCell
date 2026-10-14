@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 $sesionUsuario = AuthMiddleware::requireRole(['Estudiante'], '../auth/login.php');
@@ -81,11 +82,6 @@ if ($idCurso === false || $idCurso === null) {
 	}
 }
 
-$e = static fn($valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
 
 $formatearTiempo = static function ($valor): string {
 
@@ -113,7 +109,7 @@ $formatearTiempo = static function ($valor): string {
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?= $e($curso['nombre'] ?? 'Curso') ?> | BeatCell</title>
+	<title><?= e($curso['nombre'] ?? 'Curso') ?> | BeatCell</title>
 	<link rel="stylesheet" href="../../public/assets/css/cursos.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/cursos.css') ?>">
 	<link rel="stylesheet" href="../../public/assets/css/estudiante.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/estudiante.css') ?>">
 </head>
@@ -122,12 +118,12 @@ $formatearTiempo = static function ($valor): string {
 <main class="contenedor-cursos">
 	<?php if ($error !== ''): ?>
 		<h1>Curso no disponible</h1>
-		<p class="aviso aviso-error" role="alert"><?= $e($error) ?></p>
+		<p class="aviso aviso-error" role="alert"><?= e($error) ?></p>
 	<?php else: ?>
 		<header class="encabezado-cursos">
 			<p class="marca">BeatCell · Curso</p>
-			<h1><?= $e($curso['nombre']) ?></h1>
-			<?php if (!empty($curso['descripcion'])): ?><p><?= $e($curso['descripcion']) ?></p><?php endif; ?>
+			<h1><?= e($curso['nombre']) ?></h1>
+			<?php if (!empty($curso['descripcion'])): ?><p><?= e($curso['descripcion']) ?></p><?php endif; ?>
 		</header>
 
 		<?php if ($modulos === []): ?>
@@ -155,20 +151,20 @@ $formatearTiempo = static function ($valor): string {
 						<summary>
 							<span class="modulo-titulo">
 								<span class="etiqueta-jerarquia">Módulo <?= (int) $modulo['orden'] ?></span>
-								<span><?= $e($modulo['nombre']) ?></span>
+								<span><?= e($modulo['nombre']) ?></span>
 							</span>
 						</summary>
 						<div class="modulo-contenido">
-							<?php if (!empty($modulo['descripcion'])): ?><p class="texto"><?= $e($modulo['descripcion']) ?></p><?php endif; ?>
+							<?php if (!empty($modulo['descripcion'])): ?><p class="texto"><?= e($modulo['descripcion']) ?></p><?php endif; ?>
 
 							<?php $videoModulo = (string) ($modulo['video_url'] ?? ''); ?>
 							<?php if (preg_match('#^public/uploads/videos/[a-f0-9]{32}\.mp4$#', $videoModulo) === 1): ?>
 								<video class="video-modulo" controls preload="metadata" style="display:block;width:100%;max-width:720px;margin:0 0 1rem;border-radius:8px;">
-									<source src="../../<?= $e($videoModulo) ?>" type="video/mp4">
+									<source src="../../<?= e($videoModulo) ?>" type="video/mp4">
 									Tu navegador no soporta la reproducción de video.
 								</video>
 							<?php elseif (preg_match('#^https?://#i', $videoModulo) === 1): ?>
-								<p class="texto"><a href="<?= $e($videoModulo) ?>" target="_blank" rel="noopener noreferrer">Ver video del módulo</a></p>
+								<p class="texto"><a href="<?= e($videoModulo) ?>" target="_blank" rel="noopener noreferrer">Ver video del módulo</a></p>
 							<?php endif; ?>
 
 							<?php $temas = $temasPorModulo[(int) $modulo['id_modulo']] ?? []; ?>
@@ -181,14 +177,14 @@ $formatearTiempo = static function ($valor): string {
 											<summary>
 												<span class="tema-titulo">
 													<span class="etiqueta-jerarquia">Tema <?= (int) $tema['orden'] ?></span>
-													<span><?= $e($tema['nombre']) ?></span>
+													<span><?= e($tema['nombre']) ?></span>
 												</span>
 											</summary>
 											<div class="tema-contenido">
-												<?php if (!empty($tema['descripcion'])): ?><p class="texto"><?= $e($tema['descripcion']) ?></p><?php endif; ?>
+												<?php if (!empty($tema['descripcion'])): ?><p class="texto"><?= e($tema['descripcion']) ?></p><?php endif; ?>
 												<?php if (!empty($tema['material_apoyo'])): ?>
 													<h4>Material de apoyo</h4>
-													<p class="texto material-apoyo"><?= nl2br($e($tema['material_apoyo'])) ?></p>
+													<p class="texto material-apoyo"><?= nl2br(e($tema['material_apoyo'])) ?></p>
 												<?php endif; ?>
 
 												<?php $actividades = $actividadesPorTema[(int) $tema['id_tema']] ?? []; ?>
@@ -204,8 +200,8 @@ $formatearTiempo = static function ($valor): string {
 																		<span aria-hidden="true">✓</span> Realizada
 																	</span>
 																<?php endif; ?>
-																<h5><?= $e($actividad['titulo']) ?></h5>
-																<?php if (!empty($actividad['descripcion'])): ?><p class="texto"><?= $e($actividad['descripcion']) ?></p><?php endif; ?>
+																<h5><?= e($actividad['titulo']) ?></h5>
+																<?php if (!empty($actividad['descripcion'])): ?><p class="texto"><?= e($actividad['descripcion']) ?></p><?php endif; ?>
 															<?php
 															$estadoFecha = TiempoActividad::estadoFecha($actividad['fecha_limite'] ?? null);
 															if ((int) $actividad['realizada'] === 1 && in_array($estadoFecha, [TiempoActividad::PRONTO, TiempoActividad::VENCIDA], true)) {
@@ -213,15 +209,15 @@ $formatearTiempo = static function ($valor): string {
 															}
 															$avisoFecha = TiempoActividad::avisoFecha($estadoFecha);
 															?>
-															<p class="fecha-limite fecha-limite--<?= $e($estadoFecha) ?>">
-																<?= $e(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null)) ?>
-																<?php if ($avisoFecha !== ''): ?><strong class="fecha-limite-aviso"><?= $e($avisoFecha) ?></strong><?php endif; ?>
+															<p class="fecha-limite fecha-limite--<?= e($estadoFecha) ?>">
+																<?= e(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null)) ?>
+																<?php if ($avisoFecha !== ''): ?><strong class="fecha-limite-aviso"><?= e($avisoFecha) ?></strong><?php endif; ?>
 															</p>
 																<p class="actividad-meta">
-																	Tipo: <?= $e($actividad['tipo']) ?> ·
+																	Tipo: <?= e($actividad['tipo']) ?> ·
 																	Preguntas: <?= (int) $actividad['preguntas_activas'] ?> ·
-																	Tiempo: <?= $e(TiempoActividad::describir($actividad['tiempo_limite'], $actividad['modo_tiempo'] ?? null)) ?> ·
-																	Mínimo para aprobar: <?= $e($actividad['puntaje_minimo'] ?? 70) ?>%
+																	Tiempo: <?= e(TiempoActividad::describir($actividad['tiempo_limite'], $actividad['modo_tiempo'] ?? null)) ?> ·
+																	Mínimo para aprobar: <?= e($actividad['puntaje_minimo'] ?? 70) ?>%
 																</p>
 																<?php if ((int) $actividad['preguntas_activas'] > 0): ?>
 																	<a class="boton" href="actividad.php?id=<?= (int) $actividad['id_actividad'] ?>">

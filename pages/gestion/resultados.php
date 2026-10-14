@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 AuthMiddleware::requireRole(['Docente', 'Administrador'], '../auth/login.php');
@@ -31,11 +32,6 @@ try {
 	$error = 'No se pudieron cargar los resultados.';
 }
 
-$e = static fn($valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
 ?>
 <!doctype html>
 <html lang="es">
@@ -57,7 +53,7 @@ $e = static fn($valor): string => htmlspecialchars(
 	</header>
 
 	<?php if ($error !== ''): ?>
-		<div class="alert alert-danger" role="alert"><?= $e($error) ?></div>
+		<div class="alert alert-danger" role="alert"><?= e($error) ?></div>
 	<?php elseif ($hayId && !$detalle): ?>
 		<div class="alert alert-warning" role="status">El resultado solicitado no existe.</div>
 		<a href="resultados.php" class="btn btn-primary">Volver a resultados</a>
@@ -68,13 +64,13 @@ $e = static fn($valor): string => htmlspecialchars(
 			<div class="card-body">
 				<div class="d-flex justify-content-between gap-3 flex-wrap">
 					<div>
-						<h2 class="h5 mb-1"><?= $e($detalle['actividad']) ?></h2>
-						<p class="text-muted mb-1"><?= $e($detalle['curso']) ?> &middot; <?= $e($detalle['tema']) ?></p>
-						<p class="mb-0"><?= $e($detalle['nombres'] . ' ' . $detalle['apellidos']) ?> &middot; <?= $e($detalle['codigo']) ?></p>
+						<h2 class="h5 mb-1"><?= e($detalle['actividad']) ?></h2>
+						<p class="text-muted mb-1"><?= e($detalle['curso']) ?> &middot; <?= e($detalle['tema']) ?></p>
+						<p class="mb-0"><?= e($detalle['nombres'] . ' ' . $detalle['apellidos']) ?> &middot; <?= e($detalle['codigo']) ?></p>
 					</div>
 					<div class="text-md-end">
-						<strong class="fs-4"><?= $e(number_format((float) $detalle['porcentaje'], 2)) ?>%</strong>
-						<div><?= (int) $detalle['puntaje_obtenido'] ?> / <?= (int) $detalle['puntaje_total'] ?> &middot; <?= $e($detalle['estado']) ?></div>
+						<strong class="fs-4"><?= e(number_format((float) $detalle['porcentaje'], 2)) ?>%</strong>
+						<div><?= (int) $detalle['puntaje_obtenido'] ?> / <?= (int) $detalle['puntaje_total'] ?> &middot; <?= e($detalle['estado']) ?></div>
 					</div>
 				</div>
 			</div>
@@ -92,17 +88,17 @@ $e = static fn($valor): string => htmlspecialchars(
 							<tbody>
 							<?php foreach ($detalle['respuestas'] as $respuesta): ?>
 								<tr>
-									<td><?= $e($respuesta['pregunta']) ?></td>
+									<td><?= e($respuesta['pregunta']) ?></td>
 									<td>
 										<?php if (!empty($respuesta['respuesta_texto'])): ?>
-											<?= $e($respuesta['respuesta_texto']) ?>
+											<?= e($respuesta['respuesta_texto']) ?>
 										<?php elseif (!empty($respuesta['opcion_texto'])): ?>
-											<?= $e($respuesta['opcion_texto']) ?>
+											<?= e($respuesta['opcion_texto']) ?>
 										<?php elseif (empty($respuesta['opcion_imagen'])): ?>
 											Sin respuesta
 										<?php endif; ?>
 										<?php if (!empty($respuesta['opcion_imagen'])): ?>
-											<img class="respuesta-imagen" src="../../public/assets/img/preguntas/<?= $e(basename($respuesta['opcion_imagen'])) ?>" alt="Imagen de la opción elegida">
+											<img class="respuesta-imagen" src="../../public/assets/img/preguntas/<?= e(basename($respuesta['opcion_imagen'])) ?>" alt="Imagen de la opción elegida">
 										<?php endif; ?>
 									</td>
 									<td><?= !empty($respuesta['correcta']) ? 'Correcta' : 'Incorrecta' ?></td>
@@ -126,13 +122,13 @@ $e = static fn($valor): string => htmlspecialchars(
 						<tbody>
 						<?php foreach ($resultados as $resultado): ?>
 							<tr>
-								<td><?= $e($resultado['nombres'] . ' ' . $resultado['apellidos']) ?></td>
-								<td><?= $e($resultado['curso']) ?></td>
-								<td><?= $e($resultado['actividad']) ?></td>
+								<td><?= e($resultado['nombres'] . ' ' . $resultado['apellidos']) ?></td>
+								<td><?= e($resultado['curso']) ?></td>
+								<td><?= e($resultado['actividad']) ?></td>
 								<td><?= (int) $resultado['puntaje_obtenido'] ?> / <?= (int) $resultado['puntaje_total'] ?></td>
-								<td><?= $e(number_format((float) $resultado['porcentaje'], 2)) ?>%</td>
-								<td><?= $e($resultado['estado']) ?></td>
-								<td><?= $e($resultado['fecha']) ?></td>
+								<td><?= e(number_format((float) $resultado['porcentaje'], 2)) ?>%</td>
+								<td><?= e($resultado['estado']) ?></td>
+								<td><?= e($resultado['fecha']) ?></td>
 								<td><a href="resultados.php?id=<?= (int) $resultado['id_resultado'] ?>">Ver</a></td>
 							</tr>
 						<?php endforeach; ?>

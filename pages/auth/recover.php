@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 require_once __DIR__ . '/../../database/database.php';
 require_once __DIR__ . '/../../src/Models/UsuarioModel.php';
 
@@ -105,7 +106,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-$e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -128,13 +128,13 @@ $e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 
         <h4 class="text-center mb-3">Recuperar contraseña</h4>
 
         <?php if ($mensaje !== ''): ?>
-            <div class="alert alert-<?= $e($tipoMensaje) ?>" role="alert"><?= $e($mensaje) ?></div>
+            <div class="alert alert-<?= e($tipoMensaje) ?>" role="alert"><?= e($mensaje) ?></div>
         <?php endif; ?>
 
         <?php if ($tokenGenerado !== ''): ?>
             <div class="alert alert-info" role="alert">
                 Token de recuperación (modo local):
-                <strong><?= $e($tokenGenerado) ?></strong>
+                <strong><?= e($tokenGenerado) ?></strong>
                 <p class="mb-0">Usa este valor en el formulario de cambio de contraseña.</p>
             </div>
         <?php elseif ($tokenParaReset !== ''): ?>
@@ -150,9 +150,9 @@ $e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 
         <?php else: ?>
             <?php if ($tokenGenerado !== '' || $tokenParaReset !== ''): ?>
                 <form action="recover.php" method="POST">
-                    <input type="hidden" name="csrf_token" value="<?= $e($_SESSION['csrf_recover']) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_recover']) ?>">
                     <input type="hidden" name="accion" value="reset">
-                    <input type="hidden" name="token" value="<?= $e($tokenParaReset !== '' ? $tokenParaReset : $tokenGenerado) ?>">
+                    <input type="hidden" name="token" value="<?= e($tokenParaReset !== '' ? $tokenParaReset : $tokenGenerado) ?>">
 
                     <div class="mb-3">
                         <label class="form-label">Nueva contraseña</label>
@@ -175,13 +175,13 @@ $e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 
             <?php else: ?>
                 <p class="text-center text-muted mb-4">Ingresa tu correo para generar un enlace de recuperación.</p>
                 <form action="recover.php" method="POST">
-                    <input type="hidden" name="csrf_token" value="<?= $e($_SESSION['csrf_recover']) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_recover']) ?>">
                     <input type="hidden" name="accion" value="request">
                     <div class="mb-3">
                         <label class="form-label">Correo Electrónico</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                            <input type="email" name="email" class="form-control" value="<?= $e($emailSolicitado) ?>" placeholder="correo@ejemplo.com" required>
+                            <input type="email" name="email" class="form-control" value="<?= e($emailSolicitado) ?>" placeholder="correo@ejemplo.com" required>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Enviar instrucciones</button>

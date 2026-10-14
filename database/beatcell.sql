@@ -135,6 +135,7 @@ CREATE TABLE `respuestas_estudiante` (
   `id_resultado` int(11) NOT NULL,
   `id_pregunta` int(11) NOT NULL,
   `id_opcion` int(11) DEFAULT NULL,
+  `opciones_seleccionadas` text DEFAULT NULL,
   `respuesta_texto` text DEFAULT NULL,
   `correcta` tinyint(1) NOT NULL DEFAULT 0,
   `puntos_obtenidos` int(11) NOT NULL DEFAULT 0

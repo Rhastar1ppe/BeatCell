@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 AuthMiddleware::requireRole(['Docente', 'Administrador'], '../auth/login.php');
@@ -74,11 +75,6 @@ try {
 	$error = 'No se pudo cargar el progreso. Verifica la conexión con la base de datos.';
 }
 
-$e = static fn($valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
 $clasesEstado = [
 	'No iniciado' => 'secondary',
 	'En progreso' => 'primary',
@@ -111,19 +107,19 @@ $urlVolver = 'progreso.php' . ($buscar !== '' ? '?buscar=' . rawurlencode($busca
 	</div>
 
 	<?php if ($error !== ''): ?>
-		<div class="alert alert-danger" role="alert"><?= $e($error) ?></div>
+		<div class="alert alert-danger" role="alert"><?= e($error) ?></div>
 	<?php elseif ($noEncontrado): ?>
 		<div class="alert alert-warning" role="status">No se encontró al estudiante solicitado.</div>
-		<a class="btn btn-primary" href="<?= $e($urlVolver) ?>">Volver a estudiantes</a>
+		<a class="btn btn-primary" href="<?= e($urlVolver) ?>">Volver a estudiantes</a>
 	<?php elseif ($estudiante !== null): ?>
-		<a class="btn btn-link px-0 mb-3" href="<?= $e($urlVolver) ?>">&larr; Volver a estudiantes</a>
+		<a class="btn btn-link px-0 mb-3" href="<?= e($urlVolver) ?>">&larr; Volver a estudiantes</a>
 		<section class="card shadow-sm mb-4">
 			<div class="card-body d-flex flex-wrap justify-content-between gap-3">
 				<div>
 					<p class="text-muted small mb-1">ESTUDIANTE</p>
-					<h2 class="h4 mb-1"><?= $e($estudiante['nombres'] . ' ' . $estudiante['apellidos']) ?></h2>
-					<p class="text-muted mb-1"><?= $e($estudiante['codigo']) ?> &middot; <?= $e($estudiante['correo']) ?></p>
-					<span class="badge <?= $estudiante['estado'] === 'Activo' ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $e($estudiante['estado']) ?></span>
+					<h2 class="h4 mb-1"><?= e($estudiante['nombres'] . ' ' . $estudiante['apellidos']) ?></h2>
+					<p class="text-muted mb-1"><?= e($estudiante['codigo']) ?> &middot; <?= e($estudiante['correo']) ?></p>
+					<span class="badge <?= $estudiante['estado'] === 'Activo' ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= e($estudiante['estado']) ?></span>
 				</div>
 				<?php
 				$porcentajeGeneral = $cursos === [] ? 0 : (int) round(array_sum(array_map(
@@ -149,8 +145,8 @@ $urlVolver = 'progreso.php' . ($buscar !== '' ? '?buscar=' . rawurlencode($busca
 					?>
 					<details class="card shadow-sm">
 						<summary class="card-header bg-white d-flex flex-wrap justify-content-between gap-2">
-							<strong><?= $e($curso['curso'] ?? 'Curso') ?></strong>
-							<span><span class="badge text-bg-<?= $e($badge) ?>"><?= $e($estado) ?></span> <?= number_format($avance, 0) ?>%</span>
+							<strong><?= e($curso['curso'] ?? 'Curso') ?></strong>
+							<span><span class="badge text-bg-<?= e($badge) ?>"><?= e($estado) ?></span> <?= number_format($avance, 0) ?>%</span>
 						</summary>
 						<div class="card-body">
 							<?php if ($temas === []): ?>
@@ -158,9 +154,9 @@ $urlVolver = 'progreso.php' . ($buscar !== '' ? '?buscar=' . rawurlencode($busca
 							<?php else: foreach ($temas as $tema): ?>
 								<?php $avanceTema = min(100, max(0, (float) ($tema['porcentaje'] ?? 0))); $estadoTema = (string) ($tema['estado'] ?? 'No iniciado'); $badgeTema = $clasesEstado[$estadoTema] ?? 'secondary'; ?>
 								<div class="border-bottom py-3">
-									<div class="d-flex flex-wrap justify-content-between gap-2"><strong><?= $e($tema['tema'] ?? 'Tema') ?></strong><span class="badge text-bg-<?= $e($badgeTema) ?>"><?= $e($estadoTema) ?></span></div>
+									<div class="d-flex flex-wrap justify-content-between gap-2"><strong><?= e($tema['tema'] ?? 'Tema') ?></strong><span class="badge text-bg-<?= e($badgeTema) ?>"><?= e($estadoTema) ?></span></div>
 									<div class="text-muted small mt-1"><?= (int) ($tema['intentos'] ?? 0) ?> intentos &middot; promedio <?= number_format((float) ($tema['promedio'] ?? 0), 1) ?>%</div>
-									<div class="progress mt-2" role="progressbar" aria-label="Avance de <?= $e($tema['tema'] ?? 'tema') ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) round($avanceTema) ?>"><div class="progress-bar" style="width: <?= $avanceTema ?>%"></div></div>
+									<div class="progress mt-2" role="progressbar" aria-label="Avance de <?= e($tema['tema'] ?? 'tema') ?>" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) round($avanceTema) ?>"><div class="progress-bar" style="width: <?= $avanceTema ?>%"></div></div>
 								</div>
 							<?php endforeach; endif; ?>
 						</div>
@@ -172,7 +168,7 @@ $urlVolver = 'progreso.php' . ($buscar !== '' ? '?buscar=' . rawurlencode($busca
 		<section class="card shadow-sm">
 			<div class="table-responsive">
 				<form class="row g-2 p-3" method="get" action="progreso.php" role="search">
-					<div class="col-sm-9"><label class="visually-hidden" for="buscar-estudiante">Buscar estudiante</label><input class="form-control" id="buscar-estudiante" name="buscar" type="search" value="<?= $e($buscar) ?>" placeholder="Buscar por nombre, código o correo"></div>
+					<div class="col-sm-9"><label class="visually-hidden" for="buscar-estudiante">Buscar estudiante</label><input class="form-control" id="buscar-estudiante" name="buscar" type="search" value="<?= e($buscar) ?>" placeholder="Buscar por nombre, código o correo"></div>
 					<div class="col-sm-3 d-grid"><button class="btn btn-primary" type="submit">Buscar</button></div>
 				</form>
 				<table class="table table-hover align-middle mb-0">
@@ -190,20 +186,20 @@ $urlVolver = 'progreso.php' . ($buscar !== '' ? '?buscar=' . rawurlencode($busca
 					<?php foreach ($estudiantes as $fila): ?>
 						<?php $porcentaje = min(100, max(0, (float) ($fila['progreso_general'] ?? 0))); ?>
 						<tr>
-							<td><?= $e($fila['nombres'] . ' ' . $fila['apellidos']) ?><div class="small text-muted"><?= $e($fila['correo']) ?></div></td>
-							<td><?= $e($fila['codigo']) ?></td>
-							<td><span class="badge <?= $fila['estado'] === 'Activo' ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $e($fila['estado']) ?></span></td>
+							<td><?= e($fila['nombres'] . ' ' . $fila['apellidos']) ?><div class="small text-muted"><?= e($fila['correo']) ?></div></td>
+							<td><?= e($fila['codigo']) ?></td>
+							<td><span class="badge <?= $fila['estado'] === 'Activo' ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= e($fila['estado']) ?></span></td>
 							<td><?= (int) $fila['cursos_completados'] ?> / <?= (int) $fila['total_cursos'] ?></td>
 							<td>
 								<div class="d-flex align-items-center gap-2">
-									<div class="progress flex-grow-1" role="progressbar" aria-label="Avance de <?= $e($fila['nombres'] . ' ' . $fila['apellidos']) ?>"
+									<div class="progress flex-grow-1" role="progressbar" aria-label="Avance de <?= e($fila['nombres'] . ' ' . $fila['apellidos']) ?>"
 										 aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) round($porcentaje) ?>">
 										<div class="progress-bar" style="width: <?= $porcentaje ?>%"></div>
 									</div>
 									<span><?= number_format($porcentaje, 0) ?>%</span>
 								</div>
 							</td>
-							<td><a class="btn btn-sm btn-outline-primary" href="<?= $e('progreso.php?' . http_build_query(array_filter(['estudiante' => (int) $fila['id_usuario'], 'buscar' => $buscar !== '' ? $buscar : null], static fn($valor) => $valor !== null))) ?>">Ver detalle</a></td>
+							<td><a class="btn btn-sm btn-outline-primary" href="<?= e('progreso.php?' . http_build_query(array_filter(['estudiante' => (int) $fila['id_usuario'], 'buscar' => $buscar !== '' ? $buscar : null], static fn($valor) => $valor !== null))) ?>">Ver detalle</a></td>
 						</tr>
 					<?php endforeach; ?>
 					</tbody>

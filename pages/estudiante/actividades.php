@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 $sesionUsuario = AuthMiddleware::requireRole(['Estudiante'], '../auth/login.php');
 require_once __DIR__ . '/../../database/database.php';
@@ -26,7 +27,6 @@ try {
     error_log('BeatCell - error al cargar actividades del estudiante: ' . $e->getMessage());
     $errorCarga = 'No se pudieron cargar las actividades. Inténtalo de nuevo más tarde.';
 }
-$e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 ?>
 <!doctype html>
 <html lang="es">
@@ -40,7 +40,7 @@ $e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 <?php require __DIR__ . '/_navegacion.php'; ?>
 <main class="contenedor-actividades">
     <section class="encabezado-actividades"><h1>Actividades</h1><p>Selecciona una actividad para comenzar.</p></section>
-    <?php if ($errorCarga): ?><p class="mensaje-error" role="alert"><?= $e($errorCarga) ?></p><?php endif; ?>
+    <?php if ($errorCarga): ?><p class="mensaje-error" role="alert"><?= e($errorCarga) ?></p><?php endif; ?>
     <section class="lista-actividades">
     <?php if (!$errorCarga && !$actividades): ?>
         <p>No hay actividades activas disponibles.</p>
@@ -51,11 +51,11 @@ $e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
                     <span aria-hidden="true">✓</span> Realizada
                 </span>
             <?php endif; ?>
-            <span class="actividad-tipo"><?= $e($actividad['tipo']) ?></span>
-            <h2><?= $e($actividad['titulo']) ?></h2>
-            <?php if (!empty($actividad['descripcion'])): ?><p><?= $e($actividad['descripcion']) ?></p><?php endif; ?>
+            <span class="actividad-tipo"><?= e($actividad['tipo']) ?></span>
+            <h2><?= e($actividad['titulo']) ?></h2>
+            <?php if (!empty($actividad['descripcion'])): ?><p><?= e($actividad['descripcion']) ?></p><?php endif; ?>
             <p>Preguntas: <?= (int)$actividad['preguntas_registradas'] ?></p>
-            <p>Tiempo: <?= $e(TiempoActividad::describir($actividad['tiempo_limite'], $actividad['modo_tiempo'] ?? null))  ?></p>
+            <p>Tiempo: <?= e(TiempoActividad::describir($actividad['tiempo_limite'], $actividad['modo_tiempo'] ?? null))  ?></p>
             <?php
             // Una actividad ya realizada no necesita la alerta de vencimiento.
             $estadoFecha = TiempoActividad::estadoFecha($actividad['fecha_limite'] ?? null);
@@ -64,9 +64,9 @@ $e = static fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
             }
             $avisoFecha = TiempoActividad::avisoFecha($estadoFecha);
             ?>
-            <p class="fecha-limite fecha-limite--<?= $e($estadoFecha) ?>">
-                <?= $e(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null)) ?>
-                <?php if ($avisoFecha !== ''): ?><strong class="fecha-limite-aviso"><?= $e($avisoFecha) ?></strong><?php endif; ?>
+            <p class="fecha-limite fecha-limite--<?= e($estadoFecha) ?>">
+                <?= e(TiempoActividad::describirFecha($actividad['fecha_limite'] ?? null)) ?>
+                <?php if ($avisoFecha !== ''): ?><strong class="fecha-limite-aviso"><?= e($avisoFecha) ?></strong><?php endif; ?>
             </p>
             <a class="btn-resolver" href="actividad.php?id=<?= (int)$actividad['id_actividad'] ?>">
                 <?= (int) $actividad['realizada'] === 1 ? 'Ver estado' : 'Resolver actividad' ?>

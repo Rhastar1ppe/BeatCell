@@ -1,10 +1,6 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 $cursos = isset($cursos) && is_array($cursos) ? $cursos : [];
-$escapar = static fn($valor): string => htmlspecialchars(
-    (string) $valor,
-    ENT_QUOTES | ENT_SUBSTITUTE,
-    'UTF-8'
-);
 $porcentajeSeguro = static fn($valor): float => min(100, max(0, (float) $valor));
 $totalCursos = count($cursos);
 $cursosCompletados = 0;
@@ -30,7 +26,7 @@ $urlCss = $baseUrl . '/public/assets/css/progreso.css';
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mi progreso | BeatCell</title>
-    <link rel="stylesheet" href="<?= $escapar($urlCss) ?>">
+    <link rel="stylesheet" href="<?= e($urlCss) ?>">
 </head>
 <body class="pagina-progreso">
     <main class="contenedor-progreso">
@@ -69,14 +65,14 @@ $urlCss = $baseUrl . '/public/assets/css/progreso.css';
                         <summary class="encabezado-curso">
                             <span class="curso-indicador" aria-hidden="true">♪</span>
                             <span class="curso-info">
-                                <span class="curso-nombre"><?= $escapar($curso['curso'] ?? 'Curso') ?></span>
+                                <span class="curso-nombre"><?= e($curso['curso'] ?? 'Curso') ?></span>
                                 <span class="curso-meta"><?= count($temas) ?> temas</span>
                             </span>
-                            <span class="estado estado-<?= $escapar($claseEstadoCurso) ?>"><?= $escapar($estadoCurso) ?></span>
+                            <span class="estado estado-<?= e($claseEstadoCurso) ?>"><?= e($estadoCurso) ?></span>
                             <span class="curso-porcentaje"><?= number_format($avanceCurso, 0) ?>%</span>
                             <span class="flecha-detalle" aria-hidden="true"></span>
                             <span class="barra-progreso curso-barra" role="progressbar"
-                                aria-label="Avance de <?= $escapar($curso['curso'] ?? 'curso') ?>"
+                                aria-label="Avance de <?= e($curso['curso'] ?? 'curso') ?>"
                                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) round($avanceCurso) ?>">
                                 <span style="width: <?= $avanceCurso ?>%"></span>
                             </span>
@@ -96,7 +92,7 @@ $urlCss = $baseUrl . '/public/assets/css/progreso.css';
                                         <div class="tema-titulo">
                                             <span class="punto-tema" aria-hidden="true"></span>
                                             <div>
-                                                <h3><?= $escapar($tema['tema'] ?? 'Tema') ?></h3>
+                                                <h3><?= e($tema['tema'] ?? 'Tema') ?></h3>
                                                 <p>
                                                     <?= (int) ($tema['intentos'] ?? 0) ?> intentos
                                                     <span aria-hidden="true">·</span>
@@ -104,11 +100,11 @@ $urlCss = $baseUrl . '/public/assets/css/progreso.css';
                                                 </p>
                                             </div>
                                         </div>
-                                        <span class="estado estado-<?= $escapar($claseEstadoTema) ?>"><?= $escapar($estadoTema) ?></span>
+                                        <span class="estado estado-<?= e($claseEstadoTema) ?>"><?= e($estadoTema) ?></span>
                                         <div class="tema-avance">
                                             <span><?= number_format($avanceTema, 0) ?>%</span>
                                             <span class="barra-progreso" role="progressbar"
-                                                aria-label="Avance de <?= $escapar($tema['tema'] ?? 'tema') ?>"
+                                                aria-label="Avance de <?= e($tema['tema'] ?? 'tema') ?>"
                                                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= (int) round($avanceTema) ?>">
                                                 <span style="width: <?= $avanceTema ?>%"></span>
                                             </span>

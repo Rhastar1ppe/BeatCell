@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 $sesionUsuario = AuthMiddleware::requireRole(['Estudiante'], '../auth/login.php');
@@ -32,11 +33,6 @@ try {
 	$error = 'No se pudo cargar el historial. Inténtalo de nuevo más tarde.';
 }
 
-$e = static fn($valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
 $urlCss = '../../public/assets/css/historial.css?v=' . filemtime(__DIR__ . '/../../public/assets/css/historial.css');
 ?>
 <!doctype html>
@@ -45,7 +41,7 @@ $urlCss = '../../public/assets/css/historial.css?v=' . filemtime(__DIR__ . '/../
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Historial de resultados | BeatCell</title>
-	<link rel="stylesheet" href="<?= $e($urlCss) ?>">
+	<link rel="stylesheet" href="<?= e($urlCss) ?>">
 	<link rel="stylesheet" href="../../public/assets/css/estudiante.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/estudiante.css') ?>">
 </head>
 <body class="pagina-historial">
@@ -62,7 +58,7 @@ $urlCss = '../../public/assets/css/historial.css?v=' . filemtime(__DIR__ . '/../
 	<?php if ($error !== ''): ?>
 		<section class="estado-vacio" role="alert">
 			<h2>No se pudo cargar el historial</h2>
-			<p><?= $e($error) ?></p>
+			<p><?= e($error) ?></p>
 		</section>
 	<?php elseif ($hayId && !$detalle): ?>
 		<section class="estado-vacio" role="status">
@@ -73,12 +69,12 @@ $urlCss = '../../public/assets/css/historial.css?v=' . filemtime(__DIR__ . '/../
 	<?php elseif ($detalle): ?>
 		<a class="enlace-volver" href="historial.php">&larr; Volver al historial</a>
 		<section class="detalle-resultado">
-			<span class="estado estado-<?= $e(strtolower($detalle['estado'])) ?>"><?= $e($detalle['estado']) ?></span>
-			<h2><?= $e($detalle['actividad']) ?></h2>
-			<p><?= $e($detalle['curso']) ?> &middot; <?= $e($detalle['tema']) ?></p>
+			<span class="estado estado-<?= e(strtolower($detalle['estado'])) ?>"><?= e($detalle['estado']) ?></span>
+			<h2><?= e($detalle['actividad']) ?></h2>
+			<p><?= e($detalle['curso']) ?> &middot; <?= e($detalle['tema']) ?></p>
 			<div class="resumen-resultado">
 				<strong><?= (int) $detalle['puntaje_obtenido'] ?> / <?= (int) $detalle['puntaje_total'] ?></strong>
-				<span><?= $e(number_format((float) $detalle['porcentaje'], 2)) ?>%</span>
+				<span><?= e(number_format((float) $detalle['porcentaje'], 2)) ?>%</span>
 				<span><?= (int) $detalle['respuestas_correctas'] ?> de <?= (int) $detalle['total_preguntas'] ?> correctas</span>
 			</div>
 		</section>
@@ -89,13 +85,13 @@ $urlCss = '../../public/assets/css/historial.css?v=' . filemtime(__DIR__ . '/../
 			<section class="lista-respuestas" aria-label="Detalle de respuestas">
 				<?php foreach ($detalle['respuestas'] as $respuesta): ?>
 					<article class="respuesta <?= !empty($respuesta['correcta']) ? 'correcta' : 'incorrecta' ?>">
-						<h3><?= $e($respuesta['pregunta']) ?></h3>
+						<h3><?= e($respuesta['pregunta']) ?></h3>
 						<?php if (!empty($respuesta['respuesta_texto'])): ?>
-							<p><strong>Tu respuesta:</strong> <?= $e($respuesta['respuesta_texto']) ?></p>
+							<p><strong>Tu respuesta:</strong> <?= e($respuesta['respuesta_texto']) ?></p>
 						<?php elseif (!empty($respuesta['opcion_texto']) || !empty($respuesta['opcion_imagen'])): ?>
-							<p><strong>Tu respuesta:</strong> <?= $e($respuesta['opcion_texto']) ?></p>
+							<p><strong>Tu respuesta:</strong> <?= e($respuesta['opcion_texto']) ?></p>
 							<?php if (!empty($respuesta['opcion_imagen'])): ?>
-								<img class="respuesta-imagen" src="../../public/assets/img/preguntas/<?= $e(basename($respuesta['opcion_imagen'])) ?>" alt="Imagen de tu respuesta">
+								<img class="respuesta-imagen" src="../../public/assets/img/preguntas/<?= e(basename($respuesta['opcion_imagen'])) ?>" alt="Imagen de tu respuesta">
 							<?php endif; ?>
 						<?php else: ?>
 							<p><strong>Tu respuesta:</strong> Sin respuesta</p>
@@ -127,12 +123,12 @@ $urlCss = '../../public/assets/css/historial.css?v=' . filemtime(__DIR__ . '/../
 				<tbody>
 				<?php foreach ($resultados as $resultado): ?>
 					<tr>
-						<td><?= $e($resultado['actividad']) ?></td>
-						<td><?= $e($resultado['curso']) ?></td>
+						<td><?= e($resultado['actividad']) ?></td>
+						<td><?= e($resultado['curso']) ?></td>
 						<td><?= (int) $resultado['puntaje_obtenido'] ?> / <?= (int) $resultado['puntaje_total'] ?></td>
-						<td><?= $e(number_format((float) $resultado['porcentaje'], 2)) ?>%</td>
-						<td><?= $e($resultado['estado']) ?></td>
-						<td><?= $e($resultado['fecha']) ?></td>
+						<td><?= e(number_format((float) $resultado['porcentaje'], 2)) ?>%</td>
+						<td><?= e($resultado['estado']) ?></td>
+						<td><?= e($resultado['fecha']) ?></td>
 						<td><a href="historial.php?id=<?= (int) $resultado['id_resultado'] ?>">Ver detalle</a></td>
 					</tr>
 				<?php endforeach; ?>

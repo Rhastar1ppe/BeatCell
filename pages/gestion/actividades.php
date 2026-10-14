@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 AuthMiddleware::requireRole(['Docente', 'Administrador'], '../auth/login.php');
 require_once __DIR__ . '/../../database/database.php';
@@ -9,7 +10,6 @@ if (empty($_SESSION['csrf_gestion'])) {
     $_SESSION['csrf_gestion'] = bin2hex(random_bytes(32));
 }
 
-$e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 $datosFormulario = [
     'titulo' => '',
     'descripcion' => '',
@@ -92,9 +92,9 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
         </section>
 
         <?php if ($error): ?>
-            <div class="mensaje-error" role="alert"><?= $e($error) ?></div>
+            <div class="mensaje-error" role="alert"><?= e($error) ?></div>
         <?php elseif ($mensaje !== ''): ?>
-            <div class="mensaje-exito" role="status"><?= $e($mensaje) ?></div>
+            <div class="mensaje-exito" role="status"><?= e($mensaje) ?></div>
         <?php endif; ?>
 
         <section class="formulario-actividad" aria-labelledby="titulo-nueva-actividad">
@@ -103,7 +103,7 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                 <p class="mensaje-info">Primero crea un curso, un módulo y un tema activo para poder asociar una actividad.</p>
             <?php else: ?>
                 <form method="post" action="actividades.php">
-                    <input type="hidden" name="csrf_token" value="<?= $e($_SESSION['csrf_gestion']) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_gestion']) ?>">
                     <input type="hidden" name="accion" value="crear">
                     <div class="formulario-actividad-grid">
                         <label>Curso, módulo y tema
@@ -111,18 +111,18 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                                 <option value="">Selecciona un tema</option>
                                 <?php foreach ($temas as $tema): ?>
                                     <option value="<?= (int) $tema['id_tema'] ?>" <?= (string) ($datosFormulario['id_tema'] ?? '') === (string) $tema['id_tema'] ? 'selected' : '' ?>>
-                                        <?= $e($tema['curso'] . ' / ' . $tema['modulo'] . ' / ' . $tema['tema']) ?>
+                                        <?= e($tema['curso'] . ' / ' . $tema['modulo'] . ' / ' . $tema['tema']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
                         <label>Título
-                            <input type="text" name="titulo" maxlength="150" value="<?= $e($datosFormulario['titulo']) ?>" required>
+                            <input type="text" name="titulo" maxlength="150" value="<?= e($datosFormulario['titulo']) ?>" required>
                         </label>
                         <label>Tipo
                             <select name="tipo" required>
                                 <?php foreach (['Cuestionario', 'Práctica', 'Evaluación'] as $tipo): ?>
-                                    <option value="<?= $e($tipo) ?>" <?= ($datosFormulario['tipo'] ?? '') === $tipo ? 'selected' : '' ?>><?= $e($tipo) ?></option>
+                                    <option value="<?= e($tipo) ?>" <?= ($datosFormulario['tipo'] ?? '') === $tipo ? 'selected' : '' ?>><?= e($tipo) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
@@ -148,7 +148,7 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                                 <span class="etiqueta-panel">¿Cuántos minutos dura toda la actividad?</span>
                                 <div class="selector-numero">
                                     <button type="button" class="paso-tiempo" data-paso="-1" aria-label="Restar un minuto">−</button>
-                                    <input type="number" name="tiempo_minutos" min="<?= TiempoActividad::MIN_TOTAL_MINUTOS ?>" max="<?= TiempoActividad::MAX_TOTAL_MINUTOS ?>" step="1" inputmode="numeric" value="<?= $e($datosFormulario['tiempo_minutos']) ?>" aria-label="Minutos">
+                                    <input type="number" name="tiempo_minutos" min="<?= TiempoActividad::MIN_TOTAL_MINUTOS ?>" max="<?= TiempoActividad::MAX_TOTAL_MINUTOS ?>" step="1" inputmode="numeric" value="<?= e($datosFormulario['tiempo_minutos']) ?>" aria-label="Minutos">
                                     <button type="button" class="paso-tiempo" data-paso="1" aria-label="Sumar un minuto">+</button>
                                     <span class="unidad-tiempo">minutos</span>
                                 </div>
@@ -163,7 +163,7 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                                 <span class="etiqueta-panel">¿Cuántos segundos tiene cada pregunta?</span>
                                 <div class="selector-numero">
                                     <button type="button" class="paso-tiempo" data-paso="-5" aria-label="Restar 5 segundos">−</button>
-                                    <input type="number" name="tiempo_por_pregunta" min="<?= TiempoActividad::MIN_PREGUNTA_SEGUNDOS ?>" max="<?= TiempoActividad::MAX_PREGUNTA_SEGUNDOS ?>" step="1" inputmode="numeric" value="<?= $e($datosFormulario['tiempo_por_pregunta']) ?>" aria-label="Segundos por pregunta">
+                                    <input type="number" name="tiempo_por_pregunta" min="<?= TiempoActividad::MIN_PREGUNTA_SEGUNDOS ?>" max="<?= TiempoActividad::MAX_PREGUNTA_SEGUNDOS ?>" step="1" inputmode="numeric" value="<?= e($datosFormulario['tiempo_por_pregunta']) ?>" aria-label="Segundos por pregunta">
                                     <button type="button" class="paso-tiempo" data-paso="5" aria-label="Sumar 5 segundos">+</button>
                                     <span class="unidad-tiempo">segundos</span>
                                 </div>
@@ -177,14 +177,14 @@ $modoSeleccionado = in_array($datosFormulario['modo_tiempo'] ?? '', TiempoActivi
                             <p class="resumen-tiempo" id="resumen-tiempo" aria-live="polite"></p>
                         </fieldset>
                         <label>Puntaje mínimo para aprobar (%)
-                            <input type="number" name="puntaje_minimo" min="0" max="100" step="0.01" value="<?= $e($datosFormulario['puntaje_minimo']) ?>">
+                            <input type="number" name="puntaje_minimo" min="0" max="100" step="0.01" value="<?= e($datosFormulario['puntaje_minimo']) ?>">
                         </label>
                         <label>Fecha límite (opcional)
-                            <input type="datetime-local" name="fecha_limite" value="<?= $e($datosFormulario['fecha_limite']) ?>">
+                            <input type="datetime-local" name="fecha_limite" value="<?= e($datosFormulario['fecha_limite']) ?>">
                             <small>Déjala vacía si la actividad no tiene fecha de entrega. Los estudiantes la verán y el asistente se la recordará.</small>
                         </label>
                         <label>Descripción (opcional)
-                            <textarea name="descripcion" rows="3"><?= $e($datosFormulario['descripcion']) ?></textarea>
+                            <textarea name="descripcion" rows="3"><?= e($datosFormulario['descripcion']) ?></textarea>
                         </label>
                     </div>
                     <button type="submit" class="btn-crear-actividad">Crear actividad</button>

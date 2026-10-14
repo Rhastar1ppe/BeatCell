@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 
@@ -18,7 +19,6 @@ $idUsuario = (int) $sesionUsuario['id_usuario'];
 
 $idActividad = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
 
-$e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 
 $error = '';
 
@@ -406,7 +406,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title><?= $e($actividad['titulo']) ?> | BeatCell</title>
+    <title><?= e($actividad['titulo']) ?> | BeatCell</title>
 
     <link rel="stylesheet" href="../../public/assets/css/actividades.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/actividades.css') ?>">
 
@@ -428,11 +428,11 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 <main>
 
-<h1><?= $e($actividad['titulo']) ?></h1>
+<h1><?= e($actividad['titulo']) ?></h1>
 
-<?php if (!empty($actividad['descripcion'])): ?><p class="descripcion-actividad"><?= $e($actividad['descripcion']) ?></p><?php endif; ?>
+<?php if (!empty($actividad['descripcion'])): ?><p class="descripcion-actividad"><?= e($actividad['descripcion']) ?></p><?php endif; ?>
 
-<?php if ($error): ?><p role="alert" class="mensaje-error"><?= $e($error) ?></p><?php endif; ?>
+<?php if ($error): ?><p role="alert" class="mensaje-error"><?= e($error) ?></p><?php endif; ?>
 
 
 
@@ -444,9 +444,9 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         <p><strong>Puntaje:</strong> <?= (int)$resultado['puntaje_obtenido'] ?> de <?= (int)$resultado['puntaje_total'] ?></p>
 
-        <p><strong>Porcentaje:</strong> <?= $e($resultado['porcentaje']) ?>%</p>
+        <p><strong>Porcentaje:</strong> <?= e($resultado['porcentaje']) ?>%</p>
 
-        <p><strong>Estado:</strong> <?= $e($resultado['estado']) ?></p>
+        <p><strong>Estado:</strong> <?= e($resultado['estado']) ?></p>
 
     </section>
 
@@ -474,13 +474,13 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 <form id="form-actividad" method="post" action=""<?php if ($porPregunta): ?> data-segundos-pregunta="<?= $segundosConfigurados ?>" data-segundos-totales-restantes="<?= $tiempoRestante + $holguraPorPregunta ?>"<?php endif; ?>>
 
-<input type="hidden" name="token" value="<?= $e($temporizador['token']) ?>">
+<input type="hidden" name="token" value="<?= e($temporizador['token']) ?>">
 
 
 
 <?php if ($porPregunta): ?>
 
-    <p class="mensaje-info">Cada pregunta tiene <?= $e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?> para responderse. Al terminar su tiempo pasarás solo a la siguiente y no podrás volver atrás.</p>
+    <p class="mensaje-info">Cada pregunta tiene <?= e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?> para responderse. Al terminar su tiempo pasarás solo a la siguiente y no podrás volver atrás.</p>
 
     <div id="barra-pregunta" class="barra-pregunta" role="timer">
 
@@ -488,7 +488,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
             <span id="barra-pregunta-numero">Pregunta 1 de <?= count($preguntas) ?></span>
 
-            <span id="barra-pregunta-reloj">Tiempo: <?= $e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?></span>
+            <span id="barra-pregunta-reloj">Tiempo: <?= e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?></span>
 
         </div>
 
@@ -514,7 +514,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 
 
-        <h2 class="texto-pregunta"><?= $e($pregunta['pregunta']) ?></h2>
+        <h2 class="texto-pregunta"><?= e($pregunta['pregunta']) ?></h2>
 
 
 
@@ -522,7 +522,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
             <audio class="audio-pregunta" controls preload="none" playsinline>
 
-                <source src="../../public/assets/audio/preguntas/<?= $e(basename($pregunta['audio'])) ?>">
+                <source src="../../public/assets/audio/preguntas/<?= e(basename($pregunta['audio'])) ?>">
 
                 Tu navegador no soporta la reproducción de audio.
 
@@ -563,12 +563,12 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
             ?>
             <?php if ($videoYoutube !== null): ?>
                 <div class="contenedor-video-pregunta" style="max-width:760px;margin:16px 0;">
-                    <iframe src="<?= $e($videoYoutube) ?>" title="Video de la pregunta" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;border-radius:8px;"></iframe>
+                    <iframe src="<?= e($videoYoutube) ?>" title="Video de la pregunta" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;border-radius:8px;"></iframe>
                 </div>
             <?php elseif ($videoMp4 !== null): ?>
                 <div class="contenedor-video-pregunta" style="max-width:760px;margin:16px 0;">
                     <video controls preload="metadata" playsinline style="width:100%;border-radius:8px;">
-                        <source src="<?= $e($videoMp4) ?>" type="video/mp4">
+                        <source src="<?= e($videoMp4) ?>" type="video/mp4">
                         Tu navegador no soporta videos MP4.
                     </video>
                 </div>
@@ -578,7 +578,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
             <div class="contenedor-imagen-pregunta">
 
-                <img src="../../public/assets/img/preguntas/<?= $e(basename($pregunta['imagen'])) ?>" alt="Imagen de la pregunta" class="imagen-pregunta">
+                <img src="../../public/assets/img/preguntas/<?= e(basename($pregunta['imagen'])) ?>" alt="Imagen de la pregunta" class="imagen-pregunta">
 
             </div>
 
@@ -605,11 +605,11 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
                 <?php $esMultiple = (int) ($pregunta['seleccion_multiple'] ?? 0) === 1; ?>
                 <input type="<?= $esMultiple ? 'checkbox' : 'radio' ?>" name="respuestas[<?= (int)$pregunta['id_pregunta'] ?>]<?= $esMultiple ? '[]' : '' ?>" value="<?= (int)$opcion['id_opcion'] ?>" <?= ($porPregunta || $esMultiple) ? '' : 'required' ?>>
 
-                <span class="texto-opcion"><?= $e($opcion['texto'] ?? '') ?></span>
+                <span class="texto-opcion"><?= e($opcion['texto'] ?? '') ?></span>
 
                 <?php if (!empty($opcion['imagen'])): ?>
 
-                    <img src="../../public/assets/img/preguntas/<?= $e(basename($opcion['imagen'])) ?>" alt="Imagen de opción" class="imagen-opcion">
+                    <img src="../../public/assets/img/preguntas/<?= e(basename($opcion['imagen'])) ?>" alt="Imagen de opción" class="imagen-opcion">
 
                 <?php endif; ?>
 

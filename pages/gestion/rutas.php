@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 
@@ -15,11 +16,6 @@ if (empty($_SESSION['csrf_rutas'])) {
     $_SESSION['csrf_rutas'] = bin2hex(random_bytes(32));
 }
 
-$e = static fn($valor): string => htmlspecialchars(
-    (string) $valor,
-    ENT_QUOTES | ENT_SUBSTITUTE,
-    'UTF-8'
-);
 
 $enteroPositivo = static function ($valor, string $campo): int {
     if (!is_string($valor) && !is_int($valor)) {
@@ -252,9 +248,9 @@ foreach ($cursosRuta as $curso) {
     </header>
 
     <?php if ($error !== ''): ?>
-        <p class="mensaje-error" role="alert"><?= $e($error) ?></p>
+        <p class="mensaje-error" role="alert"><?= e($error) ?></p>
     <?php elseif ($mensaje !== ''): ?>
-        <p class="mensaje-exito" role="status"><?= $e($mensaje) ?></p>
+        <p class="mensaje-exito" role="status"><?= e($mensaje) ?></p>
     <?php endif; ?>
 
     <section class="tarjeta-ruta">
@@ -264,7 +260,7 @@ foreach ($cursosRuta as $curso) {
             ? '?id=' . (int) $rutaSeleccionada['id_ruta']
             : '' ?>">
             <input type="hidden" name="csrf_token"
-                   value="<?= $e($_SESSION['csrf_rutas']) ?>">
+                   value="<?= e($_SESSION['csrf_rutas']) ?>">
             <input type="hidden" name="accion"
                    value="<?= $rutaSeleccionada ? 'actualizar' : 'crear' ?>">
 
@@ -277,23 +273,23 @@ foreach ($cursosRuta as $curso) {
                 <label for="nombre">Nombre</label>
                 <input type="text" id="nombre" name="nombre"
                        maxlength="150" required
-                       value="<?= $e($datosFormulario['nombre']) ?>">
+                       value="<?= e($datosFormulario['nombre']) ?>">
             </div>
 
             <div class="campo">
                 <label for="descripcion">Descripción</label>
                 <textarea id="descripcion" name="descripcion"
-                          rows="4"><?= $e($datosFormulario['descripcion']) ?></textarea>
+                          rows="4"><?= e($datosFormulario['descripcion']) ?></textarea>
             </div>
 
             <div class="campo">
                 <label for="nivel">Nivel</label>
                 <select id="nivel" name="nivel" required>
                     <?php foreach (['Básico', 'Intermedio', 'Avanzado'] as $nivel): ?>
-                        <option value="<?= $e($nivel) ?>"
+                        <option value="<?= e($nivel) ?>"
                             <?= $datosFormulario['nivel'] === $nivel
                                 ? 'selected' : '' ?>>
-                            <?= $e($nivel) ?>
+                            <?= e($nivel) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
@@ -313,11 +309,11 @@ foreach ($cursosRuta as $curso) {
         <?php else: ?>
             <?php foreach ($rutas as $ruta): ?>
                 <article class="tarjeta-ruta">
-                    <h3><?= $e($ruta['nombre']) ?></h3>
-                    <p><?= $e($ruta['descripcion'] ?? '') ?></p>
+                    <h3><?= e($ruta['nombre']) ?></h3>
+                    <p><?= e($ruta['descripcion'] ?? '') ?></p>
                     <p>
-                        Nivel: <?= $e($ruta['nivel'] ?? 'Sin nivel') ?> |
-                        Estado: <?= $e($ruta['estado']) ?> |
+                        Nivel: <?= e($ruta['nivel'] ?? 'Sin nivel') ?> |
+                        Estado: <?= e($ruta['estado']) ?> |
                         Cursos: <?= (int) $ruta['total_cursos'] ?>
                     </p>
 
@@ -327,7 +323,7 @@ foreach ($cursosRuta as $curso) {
 
                     <form method="post" action="rutas.php">
                         <input type="hidden" name="csrf_token"
-                               value="<?= $e($_SESSION['csrf_rutas']) ?>">
+                               value="<?= e($_SESSION['csrf_rutas']) ?>">
                         <input type="hidden" name="accion" value="estado">
                         <input type="hidden" name="id_ruta"
                                value="<?= (int) $ruta['id_ruta'] ?>">
@@ -347,7 +343,7 @@ foreach ($cursosRuta as $curso) {
 
     <?php if ($rutaSeleccionada): ?>
         <section class="tarjeta-ruta">
-            <h2>Cursos de <?= $e($rutaSeleccionada['nombre']) ?></h2>
+            <h2>Cursos de <?= e($rutaSeleccionada['nombre']) ?></h2>
 
             <?php if (!$cursosDisponibles): ?>
                 <p>No hay cursos activos disponibles para añadir.</p>
@@ -355,7 +351,7 @@ foreach ($cursosRuta as $curso) {
                 <form method="post"
                       action="rutas.php?id=<?= (int) $idRuta ?>">
                     <input type="hidden" name="csrf_token"
-                           value="<?= $e($_SESSION['csrf_rutas']) ?>">
+                           value="<?= e($_SESSION['csrf_rutas']) ?>">
                     <input type="hidden" name="accion" value="agregar">
                     <input type="hidden" name="id_ruta"
                            value="<?= (int) $idRuta ?>">
@@ -366,7 +362,7 @@ foreach ($cursosRuta as $curso) {
                             <option value="">Selecciona un curso</option>
                             <?php foreach ($cursosDisponibles as $curso): ?>
                                 <option value="<?= (int) $curso['id_curso'] ?>">
-                                    <?= $e($curso['nombre']) ?>
+                                    <?= e($curso['nombre']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -393,14 +389,14 @@ foreach ($cursosRuta as $curso) {
                     <article class="curso-ruta">
                         <h4>
                             <?= (int) $curso['orden'] ?>.
-                            <?= $e($curso['nombre']) ?>
+                            <?= e($curso['nombre']) ?>
                         </h4>
-                        <p>Estado: <?= $e($curso['estado']) ?></p>
+                        <p>Estado: <?= e($curso['estado']) ?></p>
 
                         <form method="post"
                               action="rutas.php?id=<?= (int) $idRuta ?>">
                             <input type="hidden" name="csrf_token"
-                                   value="<?= $e($_SESSION['csrf_rutas']) ?>">
+                                   value="<?= e($_SESSION['csrf_rutas']) ?>">
                             <input type="hidden" name="accion" value="orden">
                             <input type="hidden" name="id_ruta"
                                    value="<?= (int) $idRuta ?>">
@@ -421,7 +417,7 @@ foreach ($cursosRuta as $curso) {
                         <form method="post"
                               action="rutas.php?id=<?= (int) $idRuta ?>">
                             <input type="hidden" name="csrf_token"
-                                   value="<?= $e($_SESSION['csrf_rutas']) ?>">
+                                   value="<?= e($_SESSION['csrf_rutas']) ?>">
                             <input type="hidden" name="accion" value="quitar">
                             <input type="hidden" name="id_ruta"
                                    value="<?= (int) $idRuta ?>">

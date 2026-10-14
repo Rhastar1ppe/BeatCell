@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 AuthMiddleware::requireRole(['Estudiante'], '../auth/login.php');
@@ -26,11 +27,6 @@ try {
 	$error = 'No se pudieron cargar los cursos. Inténtalo nuevamente más tarde.';
 }
 
-$e = static fn($valor): string => htmlspecialchars(
-	(string) $valor,
-	ENT_QUOTES | ENT_SUBSTITUTE,
-	'UTF-8'
-);
 ?>
 <!doctype html>
 <html lang="es">
@@ -51,7 +47,7 @@ $e = static fn($valor): string => htmlspecialchars(
 	</header>
 
 	<?php if ($error !== ''): ?>
-		<p class="aviso aviso-error" role="alert"><?= $e($error) ?></p>
+		<p class="aviso aviso-error" role="alert"><?= e($error) ?></p>
 	<?php elseif ($cursos === []): ?>
 		<p class="aviso">Todavía no hay cursos activos disponibles.</p>
 	<?php else: ?>
@@ -59,9 +55,9 @@ $e = static fn($valor): string => htmlspecialchars(
 			<?php foreach ($cursos as $curso): ?>
 				<article class="tarjeta-curso">
 					<p class="curso-etiqueta">Curso</p>
-					<h2><?= $e($curso['nombre']) ?></h2>
+					<h2><?= e($curso['nombre']) ?></h2>
 					<?php if (!empty($curso['descripcion'])): ?>
-						<p class="texto"><?= $e($curso['descripcion']) ?></p>
+						<p class="texto"><?= e($curso['descripcion']) ?></p>
 					<?php endif; ?>
 					<p class="curso-modulos">Módulos activos: <?= (int) $curso['total_modulos'] ?></p>
 					<a class="boton" href="curso.php?id=<?= (int) $curso['id_curso'] ?>">Abrir curso</a>

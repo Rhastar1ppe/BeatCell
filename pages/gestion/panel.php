@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 $sesionUsuario = AuthMiddleware::requireRole(['Docente', 'Administrador'], '../auth/login.php');
@@ -10,10 +11,6 @@ if (empty($_SESSION['csrf_logout'])) {
 }
 
 // Escapa un valor para imprimirlo de forma segura dentro del HTML.
-function e($valor): string
-{
-    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
-}
 
 // -----------------------------------------------------
 // Cifras del sistema (si la base no responde, se muestran guiones)

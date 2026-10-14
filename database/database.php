@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../config/config.php';
 
 class Database {
-    private $conn;
+    /** @var PDO|null */
+private $conn;
 
     public function connect(): PDO {
         if ($this->conn instanceof PDO) {

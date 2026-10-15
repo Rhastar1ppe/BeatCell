@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
 	session_start();
@@ -11,6 +10,11 @@ $nombreNavegacion = trim(
 	(string) ($usuarioNavegacion['apellidos'] ?? '')
 );
 $nombreNavegacion = $nombreNavegacion !== '' ? $nombreNavegacion : 'Estudiante';
+$escaparNavegacion = static fn(mixed $valor): string => htmlspecialchars(
+	(string) $valor,
+	ENT_QUOTES | ENT_SUBSTITUTE,
+	'UTF-8'
+);
 
 if (empty($_SESSION['csrf_logout'])) {
 	$_SESSION['csrf_logout'] = bin2hex(random_bytes(32));
@@ -23,6 +27,7 @@ $paginaNavegacion = match ($archivoNavegacion) {
 	'actividades.php', 'actividad.php' => 'actividades',
 	'progreso.php', 'progreso_vista.php' => 'progreso',
 	'historial.php' => 'historial',
+	'logros.php' => 'logros',
 	default => '',
 };
 $actividadEnCurso = $actividadEnCurso ?? false;
@@ -33,6 +38,7 @@ $enlacesNavegacion = [
 	'actividades' => ['Actividades', 'actividades.php'],
 	'progreso' => ['Mi progreso', 'progreso.php'],
 	'historial' => ['Historial', 'historial.php'],
+	'logros' => ['Logros', 'logros.php'],
 ];
 ?>
 <div class="barra-estudiante">
@@ -49,15 +55,15 @@ $enlacesNavegacion = [
 		</a>
 		<nav class="navegacion-estudiante" aria-label="Navegación del estudiante">
 			<?php foreach ($enlacesNavegacion as $clave => [$texto, $destino]): ?>
-				<a href="<?= e($destino) ?>"<?= $paginaNavegacion === $clave ? ' aria-current="page"' : '' ?>>
-					<?= e($texto) ?>
+				<a href="<?= $escaparNavegacion($destino) ?>"<?= $paginaNavegacion === $clave ? ' aria-current="page"' : '' ?>>
+					<?= $escaparNavegacion($texto) ?>
 				</a>
 			<?php endforeach; ?>
 		</nav>
 		<div class="cuenta-estudiante">
-			<span class="nombre-estudiante"><?= e($nombreNavegacion) ?></span>
+			<span class="nombre-estudiante"><?= $escaparNavegacion($nombreNavegacion) ?></span>
 			<form action="../auth/logout.php" method="post">
-				<input type="hidden" name="csrf_logout" value="<?= e($_SESSION['csrf_logout']) ?>">
+				<input type="hidden" name="csrf_logout" value="<?= $escaparNavegacion($_SESSION['csrf_logout']) ?>">
 				<button type="submit">Cerrar sesión</button>
 			</form>
 		</div>
@@ -65,3 +71,4 @@ $enlacesNavegacion = [
 </div>
 
 <?php if (!$actividadEnCurso) { require __DIR__ . '/_chatbot.php'; } ?>
+<script defer src="../../public/assets/js/principal.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/principal.js') ?>"></script>

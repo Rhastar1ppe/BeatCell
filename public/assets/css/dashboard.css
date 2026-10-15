@@ -1,0 +1,202 @@
+:root {
+    --dashboard-azul: #205cc4;
+    --dashboard-azul-oscuro: #174b9f;
+    --dashboard-texto: #20263a;
+    --dashboard-suave: #687086;
+    --dashboard-borde: #e0e5ef;
+}
+
+/* Panel principal del estudiante */
+.bienvenida {
+    color: #fff;
+    background: linear-gradient(125deg, #174b9f 0%, #205cc4 55%, #5a91ed 100%);
+    border: 0;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgb(32 92 196 / 16%);
+}
+
+.bienvenida .marca,
+.bienvenida h1 {
+    color: #fff;
+}
+
+.bienvenida > p,
+.bienvenida .subtitulo,
+.bienvenida .datos {
+    color: #edf4ff;
+}
+
+.opciones {
+    gap: 18px;
+}
+
+.opciones .tarjeta {
+    border-radius: 12px;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.opciones .tarjeta:hover {
+    transform: translateY(-2px);
+    border-color: #c6d8f7;
+    box-shadow: 0 10px 22px rgb(30 52 82 / 8%);
+}
+
+.boton-logros,
+.tarjeta .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(120deg, var(--dashboard-azul), #3979df);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .18s ease, transform .18s ease;
+}
+
+.boton-logros:hover,
+.tarjeta .boton:hover {
+    background: var(--dashboard-azul-oscuro);
+    transform: translateY(-1px);
+}
+
+.resumen .contador {
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgb(25 38 56 / 4%);
+}
+
+/* Vista de logros */
+.contenido-pagina {
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 0 20px 40px;
+    color: var(--dashboard-texto);
+}
+
+.encabezado-logros {
+    display: block;
+    margin-bottom: 24px;
+    padding: 24px 26px;
+    border-radius: 14px;
+    background: linear-gradient(125deg, #174b9f, #3979df);
+    color: #fff;
+}
+
+.encabezado-logros .marca-logros {
+    margin: 0 0 8px;
+    color: #dceaff;
+    font-size: .82rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.encabezado-logros h1 {
+    margin: 0 0 8px;
+    color: #fff;
+    font-size: clamp(1.6rem, 4vw, 2rem);
+}
+
+.encabezado-logros > p:last-child {
+    margin: 0;
+    color: #edf4ff;
+}
+
+.resumen-logros {
+    margin: 0 0 18px;
+    color: var(--dashboard-suave);
+}
+
+.lista-logros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.tarjeta-logro {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+    padding: 20px;
+    border: 1px solid var(--dashboard-borde);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgb(25 38 56 / 4%);
+}
+
+.tarjeta-logro h2,
+.estado-vacio h2 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.detalle-logro {
+    min-width: 0;
+}
+
+.tarjeta-logro p {
+    margin: 0 0 10px;
+    color: #596176;
+    line-height: 1.55;
+}
+
+.tarjeta-logro small {
+    color: #737b8d;
+}
+
+.logro-icono {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #eaf1ff;
+    color: var(--dashboard-azul);
+    font-size: 1.5rem;
+}
+
+.estado-vacio {
+    padding: 26px;
+    border: 1px solid var(--dashboard-borde);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgb(25 38 56 / 4%);
+}
+
+.estado-vacio .logro-icono {
+    margin-bottom: 14px;
+}
+
+.estado-vacio p {
+    color: var(--dashboard-suave);
+}
+
+.aviso.error {
+    padding: 12px 14px;
+    border: 1px solid #f2caca;
+    border-radius: 8px;
+    background: #fff0f0;
+    color: #9b1c1c;
+}
+
+@media (max-width: 600px) {
+    .contenido-pagina {
+        margin: 22px auto;
+        padding: 0 12px 28px;
+    }
+
+    .encabezado-logros,
+    .estado-vacio {
+        padding: 20px;
+    }
+
+    .tarjeta-logro {
+        padding: 16px;
+    }
+}

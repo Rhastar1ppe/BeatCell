@@ -72,10 +72,6 @@ try {
             <p class="marca">BeatCell</p>
             <p class="subtitulo">Academia de Tecnología Celular</p>
         </div>
-        <form action="../auth/logout.php" method="POST">
-            <input type="hidden" name="csrf_logout" value="<?= e($_SESSION['csrf_logout']) ?>">
-            <button type="submit">Cerrar sesión</button>
-        </form>
     </header>
 
     <section class="bienvenida" aria-labelledby="bienvenida">

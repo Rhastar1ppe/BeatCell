@@ -27,6 +27,7 @@ $paginaNavegacion = match ($archivoNavegacion) {
 	'actividades.php', 'actividad.php' => 'actividades',
 	'progreso.php', 'progreso_vista.php' => 'progreso',
 	'historial.php' => 'historial',
+	'logros.php' => 'logros',
 	default => '',
 };
 $actividadEnCurso = $actividadEnCurso ?? false;
@@ -37,6 +38,7 @@ $enlacesNavegacion = [
 	'actividades' => ['Actividades', 'actividades.php'],
 	'progreso' => ['Mi progreso', 'progreso.php'],
 	'historial' => ['Historial', 'historial.php'],
+	'logros' => ['Logros', 'logros.php'],
 ];
 ?>
 <div class="barra-estudiante">
@@ -69,3 +71,4 @@ $enlacesNavegacion = [
 </div>
 
 <?php if (!$actividadEnCurso) { require __DIR__ . '/_chatbot.php'; } ?>
+<script defer src="../../public/assets/js/principal.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/principal.js') ?>"></script>

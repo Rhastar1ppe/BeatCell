@@ -1,0 +1,88 @@
+/* Estilos base compartidos (fondo, texto, enlaces, botones y avisos) */
+
+:root {
+    --azul: #205cc4;
+    --azul-claro: #0d6efd;
+    --azul-oscuro: #174ea6;
+    --degradado-azul: linear-gradient(135deg, #205cc4, #0d6efd);
+    --texto: #243247;
+    --borde: #dde3eb;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f4f6f9;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--texto);
+}
+
+a {
+    color: var(--azul);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+.contenido-pagina {
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 0 20px;
+}
+
+.contenido-pagina h1 {
+    margin: 0 0 18px;
+    color: var(--azul);
+}
+
+/* Barra de degradado azul bajo el título */
+.contenido-pagina h1::after {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 999px;
+    background: var(--degradado-azul);
+}
+
+.boton {
+    display: inline-block;
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--degradado-azul);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.boton:hover {
+    background: linear-gradient(135deg, #174ea6, #205cc4);
+}
+
+.estado-vacio {
+    background: #fff;
+    border: 1px solid var(--borde);
+    border-top: 4px solid var(--azul);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.aviso {
+    padding: 12px 16px;
+    border-radius: 8px;
+}
+
+.error {
+    background: #fff0f0;
+    color: #9b1c1c;
+}

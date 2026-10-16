@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../src/Controllers/CursoController.php';
@@ -10,10 +11,6 @@ if (empty($_SESSION['csrf_gestion'])) {
     $_SESSION['csrf_gestion'] = bin2hex(random_bytes(32));
 }
 
-function e($valor): string
-{
-    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
-}
 
 /** Borra un video local subido por esta pantalla (ruta ya validada). */
 function eliminarVideoLocal(?string $ruta): void
@@ -642,4 +639,5 @@ $orden = $datos['orden'] ?? ($moduloEditar['orden'] ?? '');
 </div>
 
 </body>
+
 </html>

@@ -63,6 +63,7 @@ try {
     <title>Inicio del estudiante | BeatCell</title>
     <link rel="stylesheet" href="../../public/assets/css/principal.css">
     <link rel="stylesheet" href="../../public/assets/css/estudiante.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/estudiante.css') ?>">
+    <link rel="stylesheet" href="../../public/assets/css/dashboard.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/dashboard.css') ?>">
 </head>
 <body>
     <?php require __DIR__ . '/_navegacion.php'; ?>
@@ -159,7 +160,5 @@ try {
     <?php endif; ?>
     <footer>Panel del estudiante · BeatCell</footer>
 </main>
-
 </body>
-
 </html>

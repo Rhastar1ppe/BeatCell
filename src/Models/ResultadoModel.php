@@ -82,13 +82,20 @@ class ResultadoModel
             $correcta = (bool) ($resp['correcta'] ?? $resp['es_correcta'] ?? false);
             $puntos = $correcta ? (int) ($resp['puntos'] ?? $resp['puntos_obtenidos'] ?? 1) : 0;
 
+            // Compatibilidad: las respuestas anteriores no incluyen este campo.
+            $opcionesSeleccionadas = $resp['opciones_seleccionadas'] ?? null;
+            if ($opcionesSeleccionadas !== null && !is_array($opcionesSeleccionadas)) {
+                throw new InvalidArgumentException('Las opciones seleccionadas deben enviarse como un arreglo.');
+            }
+
             $this->repository->guardarRespuestaEstudiante(
                 $idResultado,
                 $idPregunta,
                 $idOpcion,
                 $texto,
                 $correcta,
-                $puntos
+                $puntos,
+                $opcionesSeleccionadas
             );
         }
     }

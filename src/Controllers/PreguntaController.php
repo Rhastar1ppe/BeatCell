@@ -1,14 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../Repositories/PreguntaRepository.php';
 
+
+require_once __DIR__ . '/../Repositories/PreguntaRepository.php';
 require_once __DIR__ . '/../Models/PreguntaModel.php';
+
+
 
 class PreguntaController {
 
-    private PreguntaRepository $repository;
 
+    private PreguntaRepository $repository;
     private PDO $db;
+
+
 
     // Audio del enunciado: extensiones permitidas y tipos MIME aceptados para cada una.
 
@@ -26,6 +31,8 @@ class PreguntaController {
 
     private const AUDIO_MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
+
+
     public function __construct(PDO $db) {
 
         $this->db = $db;
@@ -34,11 +41,15 @@ class PreguntaController {
 
     }
 
+
+
     private function directorioAudio(): string {
 
         return __DIR__ . '/../../public/assets/audio/preguntas/';
 
     }
+
+
 
     /**
 
@@ -55,6 +66,8 @@ class PreguntaController {
         $archivo = $_FILES['audio_pregunta'] ?? null;
 
         $codigo = is_array($archivo) ? ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) : UPLOAD_ERR_NO_FILE;
+
+
 
         if ($codigo === UPLOAD_ERR_NO_FILE) {
 
@@ -74,6 +87,8 @@ class PreguntaController {
 
         }
 
+
+
         $rutaTemporal = $archivo['tmp_name'] ?? '';
 
         $nombreOriginal = (string) ($archivo['name'] ?? '');
@@ -81,6 +96,8 @@ class PreguntaController {
         $tamano = (int) ($archivo['size'] ?? 0);
 
         $extension = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
+
+
 
         if (
 
@@ -102,6 +119,8 @@ class PreguntaController {
 
         }
 
+
+
         // Se comprueba el contenido real del archivo, no solo la extensión.
 
         if (class_exists('finfo')) {
@@ -115,6 +134,8 @@ class PreguntaController {
             }
 
         }
+
+
 
         $directorio = $this->directorioAudio();
 
@@ -130,6 +151,8 @@ class PreguntaController {
 
         }
 
+
+
         $nombreNuevo = bin2hex(random_bytes(16)) . '.' . $extension;
 
         if (!move_uploaded_file($rutaTemporal, $directorio . $nombreNuevo)) {
@@ -138,9 +161,13 @@ class PreguntaController {
 
         }
 
+
+
         return ['nombre' => $nombreNuevo, 'error' => null];
 
     }
+
+
 
     private function eliminarArchivoAudio(?string $nombre): void {
 
@@ -159,69 +186,40 @@ class PreguntaController {
         }
 
     }
-
     private const VIDEO_MAX_BYTES = 100 * 1024 * 1024;
 
     private function directorioVideo(): string {
-
         return __DIR__ . '/../../public/assets/video/preguntas/';
-
     }
 
     private function procesarVideoSubido(): array {
-
         $archivo = $_FILES['video_pregunta'] ?? null;
-
         $codigo = is_array($archivo) ? ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) : UPLOAD_ERR_NO_FILE;
-
         if ($codigo === UPLOAD_ERR_NO_FILE) return ['url' => null, 'error' => null];
-
         if ($codigo !== UPLOAD_ERR_OK) return ['url' => null, 'error' => 'No se pudo subir el video. Revisa el límite de subida de PHP.'];
-
         $tmp = $archivo['tmp_name'] ?? '';
-
         $tamano = (int) ($archivo['size'] ?? 0);
-
         $extension = strtolower(pathinfo((string) ($archivo['name'] ?? ''), PATHINFO_EXTENSION));
-
         if (!is_string($tmp) || !is_uploaded_file($tmp) || $extension !== 'mp4' || $tamano < 1 || $tamano > self::VIDEO_MAX_BYTES) {
-
             return ['url' => null, 'error' => 'El video debe ser MP4 y no superar 100 MB.'];
-
         }
-
         if (!class_exists('finfo') || (new finfo(FILEINFO_MIME_TYPE))->file($tmp) !== 'video/mp4') {
-
             return ['url' => null, 'error' => 'El archivo no corresponde a un video MP4 válido.'];
-
         }
-
         $dir = $this->directorioVideo();
-
         if ((!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) || !is_writable($dir)) {
-
             return ['url' => null, 'error' => 'No se pudo preparar el almacenamiento de videos.'];
-
         }
-
         $nombre = bin2hex(random_bytes(16)) . '.mp4';
-
         if (!move_uploaded_file($tmp, $dir . $nombre)) return ['url' => null, 'error' => 'No se pudo guardar el video.'];
-
         return ['url' => 'assets/video/preguntas/' . $nombre, 'error' => null];
-
     }
 
     private function eliminarVideoLocal(?string $url): void {
-
-        if ($url === null || !preg_match('\~^assets/video/preguntas/([a-f0-9]{32}\\.mp4)$\~', $url, $m)) return;
-
+        if ($url === null || !preg_match('~^assets/video/preguntas/([a-f0-9]{32}\.mp4)$~', $url, $m)) return;
         $ruta = $this->directorioVideo() . $m[1];
-
         if (is_file($ruta)) @unlink($ruta);
-
     }
-
     public function obtenerActividades(): array {
 
         $stmt = $this->db->query("SELECT a.id_actividad, a.titulo, t.nombre AS tema_nombre 
@@ -238,6 +236,8 @@ class PreguntaController {
 
     }
 
+
+
     public function listarPorActividad(?int $idActividad): array {
 
         if (!$idActividad) {
@@ -250,19 +250,27 @@ class PreguntaController {
 
     }
 
+
+
     public function verDetalle(int $idPregunta): ?array {
 
         return $this->repository->obtenerConOpciones($idPregunta);
 
     }
 
+
+
     public function procesarFormulario(): ?array {
 
         $mensaje = null;
 
+
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $accion = $_POST['accion'] ?? '';
+
+
 
             if ($accion === 'crear' || $accion === 'actualizar') {
 
@@ -272,16 +280,6 @@ class PreguntaController {
 
                 $tipo = $_POST['tipo'] ?? 'verdadero_falso';
 
-                // Las preguntas con video reutilizan los formatos de respuesta existentes.
-                $tipoRespuesta = null;
-                if ($tipo === 'video') {
-                    $tipoRespuesta = (string) ($_POST['tipo_respuesta'] ?? 'opcion_multiple');
-                    if (!in_array($tipoRespuesta, ['verdadero_falso', 'completar', 'opcion_multiple'], true)) {
-                        return ['tipo' => 'danger', 'texto' => 'Selecciona un tipo de respuesta válido para el video.'];
-                    }
-                }
-                $tipoEvaluacion = $tipo === 'video' ? $tipoRespuesta : $tipo;
-
                 $puntos = (int) ($_POST['puntos'] ?? 1);
 
                 $tiempoLimite = !empty($_POST['tiempo_limite']) ? (int) $_POST['tiempo_limite'] : null;
@@ -289,6 +287,8 @@ class PreguntaController {
                 $explicacion = $_POST['explicacion'] ?? null;
 
                 $estado = $_POST['estado'] ?? 'Activo';
+
+
 
                 // Recolectar opciones del formulario
 
@@ -304,7 +304,11 @@ class PreguntaController {
 
                 $idsOpciones = $opcionesInput['id_opcion'] ?? [];
 
+
+
                 $uploadDir = __DIR__ . '/../../public/assets/img/preguntas/';
+
+
 
                 $opcionesFormateadas = [];
 
@@ -313,6 +317,8 @@ class PreguntaController {
                     $tieneTexto = trim($texto) !== '';
 
                     $imagenPath = $imagenesActuales[$index] ?? null;
+
+
 
                     $errorSubida = $_FILES['opciones']['error']['imagen'][$index] ?? UPLOAD_ERR_NO_FILE;
 
@@ -323,6 +329,8 @@ class PreguntaController {
                             return ['tipo' => 'danger', 'texto' => 'No se pudo recibir la imagen. Inténtalo de nuevo.'];
 
                         }
+
+
 
                         $fileTmpPath = $_FILES['opciones']['tmp_name']['imagen'][$index] ?? '';
 
@@ -352,6 +360,8 @@ class PreguntaController {
 
                             : false;
 
+
+
                         if (
 
                             $fileSize < 1
@@ -370,6 +380,8 @@ class PreguntaController {
 
                         }
 
+
+
                         if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
 
                             return ['tipo' => 'danger', 'texto' => 'No se pudo preparar el almacenamiento de imágenes.'];
@@ -382,6 +394,8 @@ class PreguntaController {
 
                         }
 
+
+
                         $newFileName = bin2hex(random_bytes(16)) . '.' . $fileExtension;
 
                         if (!move_uploaded_file($fileTmpPath, $uploadDir . $newFileName)) {
@@ -393,6 +407,8 @@ class PreguntaController {
                         $imagenPath = $newFileName;
 
                     }
+
+
 
                     // Se valida que la opción tenga contenido
 
@@ -420,7 +436,9 @@ class PreguntaController {
 
                 }
 
-                if ($tipoEvaluacion === 'verdadero_falso') {
+
+
+                if ($tipo === 'verdadero_falso') {
 
                     foreach ($opcionesFormateadas as &$opcion) {
 
@@ -442,6 +460,8 @@ class PreguntaController {
 
                 }
 
+
+
                 // Audio actual guardado en BD (se lee de la BD, no del formulario, para no confiar en datos del cliente)
 
                 $audioAnterior = null;
@@ -459,6 +479,8 @@ class PreguntaController {
                     }
 
                 }
+
+
 
                 // Solo las preguntas de tipo audio conservan archivo; en los demás tipos queda en NULL.
 
@@ -482,88 +504,38 @@ class PreguntaController {
 
                 }
 
+
+
                 $videoAnterior = null;
-
                 if ($accion === 'actualizar' && !empty($existente)) {
-
                     $videoAnterior = $existente['video_url'] ?? null;
-
                 }
-
                 $videoNuevo = null;
-
                 $videoFinal = null;
-
                 if ($tipo === 'video') {
-
                     $enlace = trim((string) ($_POST['video_url'] ?? ''));
-
                     if ($enlace !== '') {
-
                         if (strlen($enlace) > 2048 || !filter_var($enlace, FILTER_VALIDATE_URL)
-
                             || !in_array(strtolower((string) parse_url($enlace, PHP_URL_SCHEME)), ['https'], true)) {
-
                             return ['tipo' => 'danger', 'texto' => 'Introduce un enlace HTTPS válido para el video.'];
-
                         }
-
                         $videoFinal = $enlace;
-
                     }
-
                     $subidaVideo = $this->procesarVideoSubido();
-
                     if ($subidaVideo['error'] !== null) return ['tipo' => 'danger', 'texto' => $subidaVideo['error']];
-
                     $videoNuevo = $subidaVideo['url'];
-
                     if ($videoNuevo !== null && $enlace !== '') {
-
                         $this->eliminarVideoLocal($videoNuevo);
-
                         return ['tipo' => 'danger', 'texto' => 'Selecciona un archivo MP4 o un enlace, no ambos.'];
-
                     }
-
                     $videoFinal = $videoNuevo ?? $videoFinal ?? $videoAnterior;
-
                     if (!$videoFinal) return ['tipo' => 'danger', 'texto' => 'La pregunta de video requiere un MP4 o un enlace.'];
-
                 }
-
-                $seleccionMultiple = in_array($tipoEvaluacion, ['opcion_multiple', 'audio', 'imagen'], true) && !empty($_POST['seleccion_multiple']) ? 1 : 0;
-
+                $seleccionMultiple = in_array($tipo, ['opcion_multiple', 'video', 'audio', 'imagen'], true) && !empty($_POST['seleccion_multiple']) ? 1 : 0;
                 $totalCorrectas = count(array_filter($opcionesFormateadas, static fn($o) => !empty($o['correcta'])));
-                // Comprobar las respuestas de acuerdo con el formato elegido.
-                if ($tipoEvaluacion === 'verdadero_falso') {
-                    $valores = array_map(static fn($o) => mb_strtolower(trim((string) $o['texto'])), $opcionesFormateadas);
-                    sort($valores);
-                    if ($valores !== ['falso', 'verdadero'] || $totalCorrectas !== 1) {
-                        $this->eliminarVideoLocal($videoNuevo);
-                        return ['tipo' => 'danger', 'texto' => 'Verdadero/Falso necesita ambas opciones y exactamente una correcta.'];
-                    }
-                } elseif ($tipoEvaluacion === 'completar') {
-                    if (count($opcionesFormateadas) !== 1 || $totalCorrectas !== 1) {
-                        $this->eliminarVideoLocal($videoNuevo);
-                        return ['tipo' => 'danger', 'texto' => 'Completar requiere una respuesta esperada.'];
-                    }
-                } elseif ($tipoEvaluacion === 'opcion_multiple' && (count($opcionesFormateadas) < 2 || $totalCorrectas < 1)) {
-                    $this->eliminarVideoLocal($videoNuevo);
-                    return ['tipo' => 'danger', 'texto' => 'La opción múltiple necesita al menos dos alternativas y una correcta.'];
-                }
-                if ($tipoEvaluacion === 'opcion_multiple' && !$seleccionMultiple && $totalCorrectas !== 1) {
-                    $this->eliminarVideoLocal($videoNuevo);
-                    return ['tipo' => 'danger', 'texto' => 'Marca solo una respuesta correcta o activa la selección múltiple.'];
-                }
-
-
                 if ($seleccionMultiple && $totalCorrectas < 2) {
-
                     $this->eliminarVideoLocal($videoNuevo);
-
                     return ['tipo' => 'danger', 'texto' => 'La selección múltiple requiere al menos dos respuestas correctas.'];
-
                 }
 
                 $data = [
@@ -577,11 +549,8 @@ class PreguntaController {
                     'puntos' => $puntos,
 
                     'audio' => $audioFinal,
-
                     'video_url' => $videoFinal,
-
                     'seleccion_multiple' => $seleccionMultiple,
-                    'tipo_respuesta' => $tipoRespuesta,
 
                     'tiempo_limite' => $tiempoLimite,
 
@@ -591,7 +560,11 @@ class PreguntaController {
 
                 ];
 
+
+
                 $modelo = new PreguntaModel($data, $opcionesFormateadas);
+
+
 
                 if ($modelo->validar()) {
 
@@ -610,7 +583,6 @@ class PreguntaController {
                             if ($idPregunta <= 0) {
 
                                 $this->eliminarArchivoAudio($audioNuevo);
-
                         $this->eliminarVideoLocal($videoNuevo);
 
                                 return ['tipo' => 'danger', 'texto' => 'La pregunta que intentas editar no es válida.'];
@@ -628,11 +600,8 @@ class PreguntaController {
                             }
 
                             if ($videoAnterior !== null && $videoAnterior !== $videoFinal) {
-
                                 $this->eliminarVideoLocal($videoAnterior);
-
                             }
-
                             $mensaje = ['tipo' => 'success', 'texto' => 'Pregunta actualizada correctamente.'];
 
                         }
@@ -640,21 +609,19 @@ class PreguntaController {
                     } catch (Exception $e) {
 
                         $this->eliminarArchivoAudio($audioNuevo);
-
                         $this->eliminarVideoLocal($videoNuevo);
 
                         // El detalle técnico va al log del servidor, no a la pantalla.
 
                         error_log('BeatCell - error al guardar pregunta: ' . $e->getMessage());
 
-                        $mensaje = ['tipo' => 'danger', 'texto' => 'No se pudo guardar la pregunta. Revisa que la actividad exista e inténtalo de nuevo.'];
+                        $mensaje = ['tipo' => 'danger', 'texto' => 'No se pudo guardar la pregunta. Verifica que la base de datos esté actualizada e inténtalo de nuevo.'];
 
                     }
 
                 } else {
 
                     $this->eliminarArchivoAudio($audioNuevo);
-
                     $this->eliminarVideoLocal($videoNuevo);
 
                     $errores = implode("\n", $modelo->obtenerErrores());
@@ -674,11 +641,8 @@ class PreguntaController {
                     $this->repository->eliminar($idPregunta);
 
                     if (!empty($existente['video_url'])) {
-
                         $this->eliminarVideoLocal((string) $existente['video_url']);
-
                     }
-
                     if (!empty($existente['audio'])) {
 
                         $this->eliminarArchivoAudio((string) $existente['audio']);
@@ -697,8 +661,10 @@ class PreguntaController {
 
         }
 
+
+
         return $mensaje;
 
     }
 
-}   
+}

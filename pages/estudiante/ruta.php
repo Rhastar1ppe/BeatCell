@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 
@@ -13,11 +14,6 @@ header('Cache-Control: no-store');
 
 require_once __DIR__ . '/../../src/Controllers/RutaAprendizajeController.php';
 
-$e = static fn($valor): string => htmlspecialchars(
-    (string) $valor,
-    ENT_QUOTES | ENT_SUBSTITUTE,
-    'UTF-8'
-);
 
 $rutas = [];
 $rutaSeleccionada = null;
@@ -77,7 +73,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $e(
+    <title><?= e(
         $rutaSeleccionada['nombre'] ?? 'Rutas de aprendizaje'
     ) ?> | BeatCell</title>
     <link rel="stylesheet" href="../../public/assets/css/rutas.css">
@@ -98,19 +94,19 @@ try {
             <h1>Ruta no disponible</h1>
         </header>
 
-        <p class="mensaje-error" role="alert"><?= $e($error) ?></p>
+        <p class="mensaje-error" role="alert"><?= e($error) ?></p>
 
     <?php elseif ($rutaSeleccionada !== null): ?>
         <header class="encabezado-rutas">
-            <h1><?= $e($rutaSeleccionada['nombre']) ?></h1>
+            <h1><?= e($rutaSeleccionada['nombre']) ?></h1>
 
             <?php if (!empty($rutaSeleccionada['descripcion'])): ?>
-                <p><?= nl2br($e($rutaSeleccionada['descripcion'])) ?></p>
+                <p><?= nl2br(e($rutaSeleccionada['descripcion'])) ?></p>
             <?php endif; ?>
 
             <p>
                 <strong>Nivel:</strong>
-                <?= $e($rutaSeleccionada['nivel'] ?? 'Sin nivel') ?>
+                <?= e($rutaSeleccionada['nivel'] ?? 'Sin nivel') ?>
             </p>
         </header>
 
@@ -128,11 +124,11 @@ try {
                     <article class="curso-ruta">
                         <h3>
                             <?= (int) $curso['orden'] ?>.
-                            <?= $e($curso['nombre']) ?>
+                            <?= e($curso['nombre']) ?>
                         </h3>
 
                         <?php if (!empty($curso['descripcion'])): ?>
-                            <p><?= nl2br($e($curso['descripcion'])) ?></p>
+                            <p><?= nl2br(e($curso['descripcion'])) ?></p>
                         <?php endif; ?>
 
                         <a href="curso.php?id=<?= (int) $curso['id_curso'] ?>">
@@ -160,15 +156,15 @@ try {
             <?php else: ?>
                 <?php foreach ($rutas as $ruta): ?>
                     <article class="tarjeta-ruta">
-                        <h2><?= $e($ruta['nombre']) ?></h2>
+                        <h2><?= e($ruta['nombre']) ?></h2>
 
                         <?php if (!empty($ruta['descripcion'])): ?>
-                            <p><?= nl2br($e($ruta['descripcion'])) ?></p>
+                            <p><?= nl2br(e($ruta['descripcion'])) ?></p>
                         <?php endif; ?>
 
                         <p>
                             <strong>Nivel:</strong>
-                            <?= $e($ruta['nivel'] ?? 'Sin nivel') ?>
+                            <?= e($ruta['nivel'] ?? 'Sin nivel') ?>
                         </p>
 
                         <a href="ruta.php?id=<?= (int) $ruta['id_ruta'] ?>">

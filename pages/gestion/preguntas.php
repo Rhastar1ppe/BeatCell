@@ -1,8 +1,12 @@
 <?php
 
+
+
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 
 AuthMiddleware::requireRole(['Docente', 'Administrador'], '../auth/login.php');
+
+
 
 if (empty($_SESSION['csrf_gestion'])) {
 
@@ -13,6 +17,8 @@ if (empty($_SESSION['csrf_gestion'])) {
 require_once __DIR__ . '/../../database/database.php';
 
 require_once __DIR__ . '/../../src/Controllers/PreguntaController.php';
+
+
 
 try {
 
@@ -26,7 +32,11 @@ try {
 
 }
 
+
+
 $controller = new PreguntaController($db);
+
+
 
 $mensaje = null;
 
@@ -48,9 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $actividades = $controller->obtenerActividades();
 
+
+
 $idActividadSeleccionada = isset($_GET['id_actividad']) ? (int) $_GET['id_actividad'] : ($actividades[0]['id_actividad'] ?? null);
 
 $preguntas = $controller->listarPorActividad($idActividadSeleccionada);
+
+
 
 $preguntaEditar = null;
 
@@ -82,6 +96,8 @@ if (isset($_GET['editar'])) {
 
 <body class="bg-light">
 
+
+
     <div class="container py-4">
 
         <header class="pb-3 mb-4 border-bottom d-flex justify-content-between align-items-center">
@@ -96,6 +112,8 @@ if (isset($_GET['editar'])) {
 
         </header>
 
+
+
         <?php if ($mensaje): ?>
 
             <div class="alert alert-<?= htmlspecialchars($mensaje['tipo'], ENT_QUOTES, 'UTF-8') ?> alert-dismissible fade show" role="alert">
@@ -107,6 +125,8 @@ if (isset($_GET['editar'])) {
             </div>
 
         <?php endif; ?>
+
+
 
         <!-- Seleccionar actividad -->
 
@@ -148,6 +168,8 @@ if (isset($_GET['editar'])) {
 
         </div>
 
+
+
         <div class="row">
 
             <!-- Crear / Editar Formulario -->
@@ -176,6 +198,8 @@ if (isset($_GET['editar'])) {
 
                             <?php endif; ?>
 
+
+
                             <div class="mb-3">
 
                                 <label for="form_id_actividad" class="form-label fw-bold">Asociar a Actividad</label>
@@ -196,6 +220,8 @@ if (isset($_GET['editar'])) {
 
                             </div>
 
+
+
                             <div class="row">
 
                                 <div class="col-md-6 mb-3">
@@ -211,9 +237,7 @@ if (isset($_GET['editar'])) {
                                         <option value="imagen" <?= ($preguntaEditar['tipo'] ?? '') === 'imagen' ? 'selected' : '' ?>>Imagen</option>
 
                                         <option value="audio" <?= ($preguntaEditar['tipo'] ?? '') === 'audio' ? 'selected' : '' ?>>Audio</option>
-
                                           <option value="opcion_multiple" <?= ($preguntaEditar['tipo'] ?? '') === 'opcion_multiple' ? 'selected' : '' ?>>Opción múltiple</option>
-
                                           <option value="video" <?= ($preguntaEditar['tipo'] ?? '') === 'video' ? 'selected' : '' ?>>Video</option>
 
                                     </select>
@@ -230,6 +254,8 @@ if (isset($_GET['editar'])) {
 
                             </div>
 
+
+
                             <div class="mb-3">
 
                                 <label for="pregunta" class="form-label fw-bold">Enunciado</label>
@@ -237,6 +263,8 @@ if (isset($_GET['editar'])) {
                                 <textarea name="pregunta" id="pregunta" rows="3" class="form-control" required><?= htmlspecialchars($preguntaEditar['pregunta'] ?? '') ?></textarea>
 
                             </div>
+
+
 
                             <div class="mb-3">
 
@@ -259,6 +287,8 @@ if (isset($_GET['editar'])) {
                                 <div class="form-text small text-muted">Puedes adjuntar una imagen que acompañe el enunciado.</div>
 
                             </div>
+
+
 
                             <!-- Campo de Audio para la Pregunta (Visible cuando tipo === 'audio') -->
 
@@ -289,47 +319,26 @@ if (isset($_GET['editar'])) {
                                 <div class="form-text small text-muted">Sube el archivo de audio que escuchará el estudiante como enunciado.</div>
 
                             </div>                              <div class="mb-3" id="contenedor-video-pregunta" style="display:none;">
-
                                   <label class="form-label fw-bold" for="video_url">Video de la pregunta</label>
-
                                   <?php if (!empty($preguntaEditar['video_url'])): ?>
-
                                       <p class="small">Video actual: <?= htmlspecialchars($preguntaEditar['video_url'], ENT_QUOTES, 'UTF-8') ?></p>
-
                                   <?php endif; ?>
-
                                   <input type="url" name="video_url" id="video_url" class="form-control mb-2" placeholder="https://www.youtube.com/watch?v=..." value="<?= htmlspecialchars((isset($preguntaEditar['video_url']) && preg_match('~^https://~i', $preguntaEditar['video_url'])) ? $preguntaEditar['video_url'] : '', ENT_QUOTES, 'UTF-8') ?>">
-
                                   <label for="video_pregunta" class="form-label">O subir MP4</label>
-
                                   <input type="file" name="video_pregunta" id="video_pregunta" class="form-control" accept="video/mp4,.mp4">
-
                                   <div class="form-text">Usa un enlace HTTPS o un archivo MP4. Para reemplazar un video local, selecciona otro archivo.</div>
-
                               </div>
-
-                              <div class="mb-3" id="contenedor-tipo-respuesta-video" style="display:none;">
-    <label for="tipo_respuesta" class="form-label fw-bold">Tipo de respuesta del video</label>
-    <select name="tipo_respuesta" id="tipo_respuesta" class="form-select" onchange="cambiarTipoPregunta()">
-        <option value="verdadero_falso" <?= ($preguntaEditar['tipo_respuesta'] ?? '') === 'verdadero_falso' ? 'selected' : '' ?>>Verdadero / Falso</option>
-        <option value="completar" <?= ($preguntaEditar['tipo_respuesta'] ?? '') === 'completar' ? 'selected' : '' ?>>Completar</option>
-        <option value="opcion_multiple" <?= !in_array(($preguntaEditar['tipo_respuesta'] ?? ''), ['verdadero_falso','completar'], true) ? 'selected' : '' ?>>Opción múltiple</option>
-    </select>
-    <div class="form-text">El video permanece visible mientras el estudiante responde.</div>
-</div>
-<div class="mb-3" id="contenedor-seleccion-multiple" style="display:none;">
-
+                              <div class="mb-3" id="contenedor-seleccion-multiple" style="display:none;">
                                   <input type="hidden" name="seleccion_multiple" value="0">
-
                                   <div class="form-check">
-
                                       <input class="form-check-input" type="checkbox" name="seleccion_multiple" id="seleccion_multiple" value="1" <?= !empty($preguntaEditar['seleccion_multiple']) ? 'checked' : '' ?> onchange="actualizarModoSeleccion()">
-
                                       <label class="form-check-label" for="seleccion_multiple">Permitir varias respuestas correctas</label>
-
                                   </div>
-
                               </div>
+
+
+
+
 
                             <div class="mb-3">
 
@@ -345,6 +354,8 @@ if (isset($_GET['editar'])) {
 
                             </div>
 
+
+
                             <div class="mb-3">
 
                                 <label for="explicacion" class="form-label fw-bold">Explicación / Retroalimentación</label>
@@ -352,6 +363,8 @@ if (isset($_GET['editar'])) {
                                 <textarea name="explicacion" id="explicacion" rows="2" class="form-control"><?= htmlspecialchars($preguntaEditar['explicacion'] ?? '') ?></textarea>
 
                             </div>
+
+
 
                             <hr>
 
@@ -363,11 +376,15 @@ if (isset($_GET['editar'])) {
 
                             </div>
 
+
+
                             <div id="contenedor-opciones" class="mb-3">
 
                                 <!-- Se renderiza dinámicamente mediante JS -->
 
                             </div>
+
+
 
                             <div class="d-grid gap-2">
 
@@ -388,6 +405,8 @@ if (isset($_GET['editar'])) {
                 </div>
 
             </div>
+
+
 
             <!-- Listado -->
 
@@ -439,6 +458,8 @@ if (isset($_GET['editar'])) {
 
                                                 <p><strong>Enunciado:</strong> <?= htmlspecialchars($preg['pregunta']) ?></p>
 
+
+
                                                 <?php 
 
                                                 $audioPregunta = $conOpciones['audio'] ?? $preg['audio'] ?? null;
@@ -463,11 +484,15 @@ if (isset($_GET['editar'])) {
 
                                                 <?php endif; ?>
 
+
+
                                                 <?php if (!empty($preg['explicacion'])): ?>
 
                                                     <p><strong>Explicación:</strong> <?= htmlspecialchars($preg['explicacion']) ?></p>
 
                                                 <?php endif; ?>
+
+
 
                                                 <h6 class="fw-bold mt-3">Opciones / Respuesta:</h6>
 
@@ -505,9 +530,13 @@ if (isset($_GET['editar'])) {
 
                                                 </ul>
 
+
+
                                                 <div class="d-flex justify-content-end gap-2">
 
                                                     <a href="preguntas.php?id_actividad=<?= $idActividadSeleccionada ?>&editar=<?= $preg['id_pregunta'] ?>" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i> Editar</a>
+
+
 
                                                     <form method="POST" action="preguntas.php?id_actividad=<?= $idActividadSeleccionada ?>" onsubmit="return confirm('¿Eliminar pregunta?');" style="display:inline;">
 
@@ -545,6 +574,8 @@ if (isset($_GET['editar'])) {
 
     </div>
 
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -562,9 +593,7 @@ if (isset($_GET['editar'])) {
     } elseif (strpos($tipoRaw, 'imagen') !== false) {$tipoNormalizado = 'imagen';
 
     } elseif (strpos($tipoRaw, 'audio') !== false) {$tipoNormalizado = 'audio';
-
     } elseif (strpos($tipoRaw, 'video') !== false) {$tipoNormalizado = 'video';
-
     } elseif (strpos($tipoRaw, 'opcion_multiple') !== false) {$tipoNormalizado = 'opcion_multiple';
 
     } else {
@@ -575,6 +604,8 @@ if (isset($_GET['editar'])) {
 
     ?>
 
+
+
     // array_values() garantiza que json_encode devuelva un Array [] y no un Objeto {}
 
     const opcionesRaw = <?= json_encode(array_values($preguntaEditar['opciones'] ?? []), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
@@ -583,19 +614,23 @@ if (isset($_GET['editar'])) {
 
     const tipoActual = <?= json_encode($tipoNormalizado) ?>;
 
+
+
     function esc(valor) {
 
         return String(valor ?? '')
 
-            .replace(/&/g, '&amp;')
+            .replace(/&/g, '&')
 
-            .replace(/"/g, '&quot;')
+            .replace(/"/g, '"')
 
-            .replace(/</g, '&lt;')
+            .replace(/</g, '<')
 
-            .replace(/>/g, '&gt;');
+            .replace(/>/g, '>');
 
     }
+
+
 
     document.addEventListener("DOMContentLoaded", function() {
 
@@ -611,14 +646,11 @@ if (isset($_GET['editar'])) {
 
     });
 
+
+
     function cambiarTipoPregunta(cargarDatos = false) {
 
         const tipo = document.getElementById('tipo').value;
-        const esVideo = tipo === 'video';
-        const selectorRespuesta = document.getElementById('tipo_respuesta');
-        const contenedorTipoRespuesta = document.getElementById('contenedor-tipo-respuesta-video');
-        if (contenedorTipoRespuesta) contenedorTipoRespuesta.style.display = esVideo ? 'block' : 'none';
-        const tipoEfectivo = esVideo ? (selectorRespuesta?.value || 'opcion_multiple') : tipo;
 
         const contenedor = document.getElementById('contenedor-opciones');
 
@@ -627,16 +659,16 @@ if (isset($_GET['editar'])) {
         const labelOpciones = document.getElementById('label-opciones');
 
         const contenedorAudioPregunta = document.getElementById('contenedor-audio-pregunta');
-
         const contenedorVideo = document.getElementById('contenedor-video-pregunta');
-
         const contenedorMultiple = document.getElementById('contenedor-seleccion-multiple');
-
         if (contenedorVideo) contenedorVideo.style.display = tipo === 'video' ? 'block' : 'none';
+        if (contenedorMultiple) contenedorMultiple.style.display = ['video','audio','imagen','opcion_multiple'].includes(tipo) ? 'block' : 'none';
 
-        if (contenedorMultiple) contenedorMultiple.style.display = ['audio','imagen','opcion_multiple'].includes(tipoEfectivo) ? 'block' : 'none';
+
 
         if (!contenedor) return;
+
+
 
         // Mostrar u ocultar campo de audio del enunciado
 
@@ -646,17 +678,25 @@ if (isset($_GET['editar'])) {
 
         }
 
+
+
         contenedor.innerHTML = '';
 
-        if (tipoEfectivo === 'verdadero_falso') {
+
+
+        if (tipo === 'verdadero_falso') {
 
             if (btnAgregar) btnAgregar.style.display = 'none';
 
             if (labelOpciones) labelOpciones.textContent = 'Indique la Respuesta Correcta';
 
+
+
             let esVerdaderoCorrecta = true;
 
             let esFalsoCorrecta = false;
+
+
 
             if (cargarDatos && opcionesExistentes.length >= 2) {
 
@@ -666,9 +706,13 @@ if (isset($_GET['editar'])) {
 
             }
 
+
+
             const idVerdadero = opcionesExistentes.find(o => String(o.texto).trim().toLowerCase() === 'verdadero')?.id_opcion ?? '';
 
             const idFalso = opcionesExistentes.find(o => String(o.texto).trim().toLowerCase() === 'falso')?.id_opcion ?? '';
+
+
 
             contenedor.innerHTML = `
 
@@ -702,10 +746,11 @@ if (isset($_GET['editar'])) {
 
             `;
 
+
+
             document.querySelectorAll('input[name="opciones[correcta_vf]"]').forEach((radio, idx) => {
 
                 radio.addEventListener('change', function() {
-
             if (document.getElementById('seleccion_multiple')?.checked) { sincronizarCorrectas(); return; }
 
                     document.querySelectorAll('input[name^="opciones[correcta]"]').forEach(inp => inp.value = "0");
@@ -718,11 +763,15 @@ if (isset($_GET['editar'])) {
 
             });
 
-        } else if (tipoEfectivo === 'completar') {
+
+
+        } else if (tipo === 'completar') {
 
             if (btnAgregar) btnAgregar.style.display = 'none';
 
             if (labelOpciones) labelOpciones.textContent = 'Respuesta Correcta (Palabra o frase esperada)';
+
+
 
             let textoRespuesta = '';
 
@@ -733,6 +782,8 @@ if (isset($_GET['editar'])) {
             }
 
             const idRespuesta = opcionesExistentes[0]?.id_opcion ?? '';
+
+
 
             contenedor.innerHTML = `
 
@@ -748,11 +799,15 @@ if (isset($_GET['editar'])) {
 
             `;
 
-        } else if (tipoEfectivo === 'audio' || tipoEfectivo === 'opcion_multiple') {
+
+
+        } else if (tipo === 'audio' || tipo === 'video' || tipo === 'opcion_multiple') {
 
             if (btnAgregar) btnAgregar.style.display = 'inline-block';
 
             if (labelOpciones) labelOpciones.textContent = 'Opciones y Respuesta Correcta';
+
+
 
             if (cargarDatos && opcionesExistentes.length > 0) {
 
@@ -770,11 +825,15 @@ if (isset($_GET['editar'])) {
 
             }
 
-        } else if (tipoEfectivo === 'imagen') {
+
+
+        } else if (tipo === 'imagen') {
 
             if (btnAgregar) btnAgregar.style.display = 'inline-block';
 
             if (labelOpciones) labelOpciones.textContent = 'Opciones con Imágenes y Respuesta Correcta';
+
+
 
             if (cargarDatos && opcionesExistentes.length > 0) {
 
@@ -796,66 +855,40 @@ if (isset($_GET['editar'])) {
 
     }
 
+
+
     function actualizarModoSeleccion() {
-
         const multiple = document.getElementById('seleccion_multiple')?.checked;
-
         const checks = document.querySelectorAll('.opcion-item input[name="opciones[correcta_radio]"]');
-
         checks.forEach((input) => { input.type = multiple ? 'checkbox' : 'radio'; });
-
         if (!multiple) {
-
             let elegido = false;
-
             checks.forEach((input) => {
-
                 if (input.checked && !elegido) elegido = true;
-
                 else input.checked = false;
-
             });
-
         }
-
         sincronizarCorrectas();
-
     }
 
     function sincronizarCorrectas() {
-
         document.querySelectorAll('.opcion-item').forEach(item => {
-
             const input = item.querySelector('input[name="opciones[correcta_radio]"]');
-
             const hidden = item.querySelector('input[name^="opciones[correcta]"]');
-
             if (input && hidden) hidden.value = input.checked ? '1' : '0';
-
         });
-
     }
 
     // Verificar la respuesta correcta antes de enviar el formulario.
-
     document.querySelector('form[enctype="multipart/form-data"]')?.addEventListener('submit', function (evento) {
-
         const tipo = document.getElementById('tipo').value;
-
-        if (tipo === 'completar' || tipo === 'verdadero_falso' || (tipo === 'video' && ['completar','verdadero_falso'].includes(document.getElementById('tipo_respuesta')?.value))) return;
-
+        if (tipo === 'completar' || tipo === 'verdadero_falso') return;
         sincronizarCorrectas();
-
         const opciones = [...document.querySelectorAll('.opcion-item input[name="opciones[correcta_radio]"]')];
-
         if (opciones.length < 2 || !opciones.some(op => op.checked)) {
-
             evento.preventDefault();
-
             alert('Agrega al menos dos opciones y marca una respuesta correcta.');
-
         }
-
     });
 
     function agregarOpcion() {
@@ -882,6 +915,8 @@ if (isset($_GET['editar'])) {
 
     }
 
+
+
     function crearFilaOpcion(index, texto = '', correcta = false, imagen = '', mostrarImagen = false, idOpcion = 0) {
 
         const contenedor = document.getElementById('contenedor-opciones');
@@ -889,6 +924,8 @@ if (isset($_GET['editar'])) {
         const div = document.createElement('div');
 
         div.className = 'mb-3 border p-3 rounded bg-white opcion-item';
+
+
 
         let imagenActualHtml = '';
 
@@ -907,6 +944,8 @@ if (isset($_GET['editar'])) {
             `;
 
         }
+
+
 
         let inputImagenHtml = '';
 
@@ -927,6 +966,8 @@ if (isset($_GET['editar'])) {
             `;
 
         }
+
+
 
         div.innerHTML = `
 
@@ -960,10 +1001,11 @@ if (isset($_GET['editar'])) {
 
         contenedor.appendChild(div);
 
+
+
         const radio = div.querySelector('input[name="opciones[correcta_radio]"]');
 
         radio.addEventListener('change', function() {
-
             if (document.getElementById('seleccion_multiple')?.checked) { sincronizarCorrectas(); return; }
 
             document.querySelectorAll('.opcion-item').forEach((item) => {
@@ -984,6 +1026,8 @@ if (isset($_GET['editar'])) {
 
     }
 
+
+
     function actualizarIndices() {
 
         document.querySelectorAll('.opcion-item').forEach((item, newIndex) => {
@@ -1001,6 +1045,8 @@ if (isset($_GET['editar'])) {
             const inputFileImagen = item.querySelector('input[type="file"][name*="[imagen]"]');
 
             const label = item.querySelector('.form-check-label');
+
+
 
             if (radio) {
 

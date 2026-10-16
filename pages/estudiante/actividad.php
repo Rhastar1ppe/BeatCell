@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../src/Support/ViewHelpers.php';
 
 require_once __DIR__ . '/../../src/Middleware/AuthMiddleware.php';
 
@@ -10,17 +11,20 @@ require_once __DIR__ . '/../../src/Controllers/ResultadoController.php';
 
 require_once __DIR__ . '/../../src/Models/TiempoActividad.php';
 
+
+
 $db = (new Database())->connect();
 
 $idUsuario = (int) $sesionUsuario['id_usuario'];
 
 $idActividad = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT);
 
-$e = static fn($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 
 $error = '';
 
 $resultado = null;
+
+
 
 if ($idActividad === false || $idActividad === null || $idActividad < 1) {
 
@@ -29,6 +33,8 @@ if ($idActividad === false || $idActividad === null || $idActividad < 1) {
     exit;
 
 }
+
+
 
 $idActividad = (int) $idActividad;
 
@@ -45,6 +51,8 @@ if (!$actividad) {
     exit('La actividad no existe o no está disponible.');
 
 }
+
+
 
 $stmt = $db->prepare('SELECT 1 FROM resultados WHERE id_usuario = ? AND id_actividad = ? LIMIT 1');
 
@@ -69,6 +77,8 @@ foreach ($preguntas as &$pregunta) {
 }
 
 unset($pregunta);
+
+
 
 $modoTiempo = TiempoActividad::normalizarModo($actividad['modo_tiempo'] ?? null, $actividad['tiempo_limite'] ?? null);
 
@@ -108,6 +118,8 @@ if (!is_array($temporizador)) {
 
 }
 
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
     $tokenEnviado = $_POST['token'] ?? '';
@@ -119,6 +131,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
         && isset($temporizador['token'])
 
         && hash_equals($temporizador['token'], $tokenEnviado);
+
+
 
     if (!$tokenValido) {
 
@@ -148,9 +162,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
         $puntajeTotal = 0;
 
+
+
         if (!is_array($enviadas)) {$error = 'Las respuestas enviadas no tienen un formato válido.';
 
         }
+
+
 
         foreach ($preguntas as$pregunta) {
 
@@ -159,6 +177,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
                 break;
 
             }
+
+
 
             $idPregunta = (int)$pregunta['id_pregunta'];
 
@@ -171,15 +191,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
             $idOpcionRespuesta = null;
 
             $respuestaTexto = null;
-
             $opcionesSeleccionadas = null;
 
-            // Las preguntas de video utilizan el formato de respuesta elegido.
-            $tipoEvaluacion = ($pregunta['tipo'] ?? '') === 'video'
-                ? ($pregunta['tipo_respuesta'] ?? 'opcion_multiple')
-                : ($pregunta['tipo'] ?? '');
 
-            if ($tipoEvaluacion === 'completar') {$entrada = $enviadas[$idPregunta] ?? null;
+
+            if (($pregunta['tipo'] ?? '') === 'completar') {$entrada = $enviadas[$idPregunta] ?? null;
 
                 if (!is_string($entrada) || trim($entrada) === '') {
 
@@ -206,85 +222,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
                 }
 
             } elseif ((int) ($pregunta['seleccion_multiple'] ?? 0) === 1) {
-
                 $entrada = $enviadas[$idPregunta] ?? [];
-
                 if (!is_array($entrada)) {
-
                     $error = 'El formato de las respuestas múltiples no es válido.';
-
                     break;
-
                 }
-
                 $idsElegidos = [];
-
                 foreach ($entrada as $valor) {
-
                     $id = is_scalar($valor) ? filter_var($valor, FILTER_VALIDATE_INT) : false;
-
                     if ($id === false || $id < 1) {
-
                         $error = 'Una respuesta múltiple contiene una opción inválida.';
-
                         break;
-
                     }
-
                     $idsElegidos[] = (int) $id;
-
                 }
-
                 if ($error !== '') { break; }
-
                 $idsElegidos = array_values(array_unique($idsElegidos));
-
                 sort($idsElegidos, SORT_NUMERIC);
-
                 if (!$idsElegidos && !$permiteSinResponder) {
-
                     $error = 'Responde todas las preguntas antes de enviar la actividad.';
-
                     break;
-
                 }
-
                 $stmtCorrectas = $db->prepare('SELECT id_opcion, correcta FROM opciones_respuesta WHERE id_pregunta = ?');
-
                 $stmtCorrectas->execute([$idPregunta]);
-
                 $filas = $stmtCorrectas->fetchAll(PDO::FETCH_ASSOC);
-
                 $idsValidos = array_map(static fn($fila) => (int) $fila['id_opcion'], $filas);
-
                 if (array_diff($idsElegidos, $idsValidos)) {
-
                     $error = 'Una de las opciones enviadas no pertenece a esta pregunta.';
-
                     break;
-
                 }
-
                 $idsCorrectos = [];
-
                 foreach ($filas as $fila) {
-
                     if ((int) $fila['correcta'] === 1) {
-
                         $idsCorrectos[] = (int) $fila['id_opcion'];
-
                     }
-
                 }
-
                 sort($idsCorrectos, SORT_NUMERIC);
-
                 $correcta = $idsElegidos !== [] && $idsElegidos === $idsCorrectos;
-
                 // Guardar todas las alternativas en la columna JSON.
-
                 $opcionesSeleccionadas = $idsElegidos;
-
             } else {$entrada = $enviadas[$idPregunta] ?? null;
 
                 $idOpcion = is_scalar($entrada)
@@ -315,6 +291,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
                     }
 
+
+
                     $idOpcionRespuesta = (int)$idOpcion;
 
                     $correcta = (bool)$valorCorrecta;
@@ -323,6 +301,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
             }
 
+
+
             $respuestasCalculadas[] = [
 
                 'id_pregunta' => $idPregunta,
@@ -330,7 +310,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
                 'id_opcion' => $idOpcionRespuesta,
 
                 'respuesta_texto' => $respuestaTexto,
-
                 'opciones_seleccionadas' => $opcionesSeleccionadas,
 
                 'correcta' => $correcta,
@@ -342,6 +321,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
             ];
 
         }
+
+
 
         if ($error === '') {
 
@@ -357,7 +338,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
                 ]);
 
+
+
                 $db->commit();
+
+
 
                 unset($_SESSION['temporizadores_actividad'][$claveTemporizador]);
 
@@ -401,6 +386,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
 }
 
+
+
 $tiempoRestante = $temporizador !== null &&$tiempoLimite > 0
 
     ? max(0, $tiempoLimite - (time() - (int)$temporizador['inicio']))
@@ -419,7 +406,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title><?= $e($actividad['titulo']) ?> | BeatCell</title>
+    <title><?= e($actividad['titulo']) ?> | BeatCell</title>
 
     <link rel="stylesheet" href="../../public/assets/css/actividades.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/actividades.css') ?>">
 
@@ -433,17 +420,21 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 </head>
 
+
+
 <body>
 
 <?php require __DIR__ . '/_navegacion.php'; ?>
 
 <main>
 
-<h1><?= $e($actividad['titulo']) ?></h1>
+<h1><?= e($actividad['titulo']) ?></h1>
 
-<?php if (!empty($actividad['descripcion'])): ?><p class="descripcion-actividad"><?= $e($actividad['descripcion']) ?></p><?php endif; ?>
+<?php if (!empty($actividad['descripcion'])): ?><p class="descripcion-actividad"><?= e($actividad['descripcion']) ?></p><?php endif; ?>
 
-<?php if ($error): ?><p role="alert" class="mensaje-error"><?= $e($error) ?></p><?php endif; ?>
+<?php if ($error): ?><p role="alert" class="mensaje-error"><?= e($error) ?></p><?php endif; ?>
+
+
 
 <?php if ($resultado): ?>
 
@@ -453,9 +444,9 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         <p><strong>Puntaje:</strong> <?= (int)$resultado['puntaje_obtenido'] ?> de <?= (int)$resultado['puntaje_total'] ?></p>
 
-        <p><strong>Porcentaje:</strong> <?= $e($resultado['porcentaje']) ?>%</p>
+        <p><strong>Porcentaje:</strong> <?= e($resultado['porcentaje']) ?>%</p>
 
-        <p><strong>Estado:</strong> <?= $e($resultado['estado']) ?></p>
+        <p><strong>Estado:</strong> <?= e($resultado['estado']) ?></p>
 
     </section>
 
@@ -479,13 +470,17 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 <?php endif; ?>
 
+
+
 <form id="form-actividad" method="post" action=""<?php if ($porPregunta): ?> data-segundos-pregunta="<?= $segundosConfigurados ?>" data-segundos-totales-restantes="<?= $tiempoRestante + $holguraPorPregunta ?>"<?php endif; ?>>
 
-<input type="hidden" name="token" value="<?= $e($temporizador['token']) ?>">
+<input type="hidden" name="token" value="<?= e($temporizador['token']) ?>">
+
+
 
 <?php if ($porPregunta): ?>
 
-    <p class="mensaje-info">Cada pregunta tiene <?= $e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?> para responderse. Al terminar su tiempo pasarás solo a la siguiente y no podrás volver atrás.</p>
+    <p class="mensaje-info">Cada pregunta tiene <?= e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?> para responderse. Al terminar su tiempo pasarás solo a la siguiente y no podrás volver atrás.</p>
 
     <div id="barra-pregunta" class="barra-pregunta" role="timer">
 
@@ -493,7 +488,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
             <span id="barra-pregunta-numero">Pregunta 1 de <?= count($preguntas) ?></span>
 
-            <span id="barra-pregunta-reloj">Tiempo: <?= $e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?></span>
+            <span id="barra-pregunta-reloj">Tiempo: <?= e(TiempoActividad::formatearDuracion($segundosConfigurados)) ?></span>
 
         </div>
 
@@ -503,12 +498,9 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 <?php endif; ?>
 
+
+
 <?php foreach ($preguntas as $i =>$pregunta): ?>
-<?php
-    $tipoEvaluacion = ($pregunta['tipo'] ?? '') === 'video'
-        ? ($pregunta['tipo_respuesta'] ?? 'opcion_multiple')
-        : ($pregunta['tipo'] ?? '');
-?>
 
     <article class="tarjeta-pregunta<?= ($porPregunta && $i > 0) ? ' oculta' : '' ?>">
 
@@ -520,13 +512,17 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         </header>
 
-        <h2 class="texto-pregunta"><?= $e($pregunta['pregunta']) ?></h2>
+
+
+        <h2 class="texto-pregunta"><?= e($pregunta['pregunta']) ?></h2>
+
+
 
         <?php if (!empty($pregunta['audio'])): ?>
 
             <audio class="audio-pregunta" controls preload="none" playsinline>
 
-                <source src="../../public/assets/audio/preguntas/<?= $e(basename($pregunta['audio'])) ?>">
+                <source src="../../public/assets/audio/preguntas/<?= e(basename($pregunta['audio'])) ?>">
 
                 Tu navegador no soporta la reproducción de audio.
 
@@ -534,101 +530,65 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         <?php endif; ?>
 
+
+
             <?php
-
                 $videoUrl = trim((string) ($pregunta['video_url'] ?? ''));
-
                 $videoYoutube = null;
-
                 $videoMp4 = null;
-
                 if ($videoUrl !== '') {
-
                     $partesVideo = parse_url($videoUrl);
-
                     $hostVideo = strtolower((string) ($partesVideo['host'] ?? ''));
-
                     $esHttps = ($partesVideo['scheme'] ?? '') === 'https';
-
                     if ($esHttps && in_array($hostVideo, ['youtube.com', 'www.youtube.com', 'm.youtube.com'], true)) {
-
                         parse_str((string) ($partesVideo['query'] ?? ''), $paramsVideo);
-
                         $idVideo = (string) ($paramsVideo['v'] ?? '');
-
                         if ($idVideo === '' && preg_match('~^/(?:embed|shorts)/([a-zA-Z0-9_-]{11})~', (string) ($partesVideo['path'] ?? ''), $m)) {
-
                             $idVideo = $m[1];
-
                         }
-
                         if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $idVideo)) {
-
                             $videoYoutube = 'https://www.youtube-nocookie.com/embed/' . $idVideo;
-
                         }
-
                     } elseif ($esHttps && $hostVideo === 'youtu.be') {
-
                         $idVideo = trim((string) ($partesVideo['path'] ?? ''), '/');
-
                         if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $idVideo)) {
-
                             $videoYoutube = 'https://www.youtube-nocookie.com/embed/' . $idVideo;
-
                         }
-
                     } elseif (preg_match('~^(?:[a-zA-Z0-9_-]+\.mp4|(?:\.\./){0,3}public/assets/video/preguntas/[a-zA-Z0-9_-]+\.mp4|/?assets/video/preguntas/[a-zA-Z0-9_-]+\.mp4)$~i', $videoUrl)) {
-
                         $videoMp4 = '../../public/assets/video/preguntas/' . basename($videoUrl);
-
                     } elseif ($esHttps && preg_match('~\.mp4(?:$|\?)~i', (string) ($partesVideo['path'] ?? ''))) {
-
                         $videoMp4 = $videoUrl;
-
                     }
-
                 }
-
             ?>
-
             <?php if ($videoYoutube !== null): ?>
-
                 <div class="contenedor-video-pregunta" style="max-width:760px;margin:16px 0;">
-
-                    <iframe src="<?= $e($videoYoutube) ?>" title="Video de la pregunta" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;border-radius:8px;"></iframe>
-
+                    <iframe src="<?= e($videoYoutube) ?>" title="Video de la pregunta" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width:100%;aspect-ratio:16/9;border:0;border-radius:8px;"></iframe>
                 </div>
-
             <?php elseif ($videoMp4 !== null): ?>
-
                 <div class="contenedor-video-pregunta" style="max-width:760px;margin:16px 0;">
-
                     <video controls preload="metadata" playsinline style="width:100%;border-radius:8px;">
-
-                        <source src="<?= $e($videoMp4) ?>" type="video/mp4">
-
+                        <source src="<?= e($videoMp4) ?>" type="video/mp4">
                         Tu navegador no soporta videos MP4.
-
                     </video>
-
                 </div>
-
             <?php endif; ?>
 
         <?php if (!empty($pregunta['imagen'])): ?>
 
             <div class="contenedor-imagen-pregunta">
 
-                <img src="../../public/assets/img/preguntas/<?= $e(basename($pregunta['imagen'])) ?>" alt="Imagen de la pregunta" class="imagen-pregunta">
+                <img src="../../public/assets/img/preguntas/<?= e(basename($pregunta['imagen'])) ?>" alt="Imagen de la pregunta" class="imagen-pregunta">
 
             </div>
 
         <?php endif; ?>
 
+
+
         <div class="opciones-contenedor<?= (($pregunta['tipo'] ?? '') === 'imagen') ? ' opciones-imagenes' : '' ?>">
 
-        <?php if ($tipoEvaluacion === 'completar'): ?>
+        <?php if (($pregunta['tipo'] ?? '') === 'completar'): ?>
 
             <div class="campo-completar">
 
@@ -643,14 +603,13 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
             <label class="opcion-respuesta<?= (($pregunta['tipo'] ?? '') === 'imagen') ? ' opcion-respuesta-imagen' : '' ?>">
 
                 <?php $esMultiple = (int) ($pregunta['seleccion_multiple'] ?? 0) === 1; ?>
-
                 <input type="<?= $esMultiple ? 'checkbox' : 'radio' ?>" name="respuestas[<?= (int)$pregunta['id_pregunta'] ?>]<?= $esMultiple ? '[]' : '' ?>" value="<?= (int)$opcion['id_opcion'] ?>" <?= ($porPregunta || $esMultiple) ? '' : 'required' ?>>
 
-                <span class="texto-opcion"><?= $e($opcion['texto'] ?? '') ?></span>
+                <span class="texto-opcion"><?= e($opcion['texto'] ?? '') ?></span>
 
                 <?php if (!empty($opcion['imagen'])): ?>
 
-                    <img src="../../public/assets/img/preguntas/<?= $e(basename($opcion['imagen'])) ?>" alt="Imagen de opción" class="imagen-opcion">
+                    <img src="../../public/assets/img/preguntas/<?= e(basename($opcion['imagen'])) ?>" alt="Imagen de opción" class="imagen-opcion">
 
                 <?php endif; ?>
 
@@ -670,9 +629,13 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
 <?php endforeach; ?>
 
+
+
 <button type="submit" id="btn-enviar" class="btn-enviar<?= $porPregunta ? ' oculta' : '' ?>" onclick="return confirm('¿Enviar tus respuestas? Solo tienes un intento.')">Enviar evaluación</button>
 
 </form>
+
+
 
 <?php if ($porPregunta): ?>
 
@@ -706,6 +669,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         let intervalo = null;
 
+
+
         function pintarReloj() {
 
             const minutos = Math.floor(restante / 60);
@@ -719,6 +684,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
             barra.classList.toggle('urgente', restante <= 5);
 
         }
+
+
 
         function mostrar(indice) {
 
@@ -738,6 +705,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         }
 
+
+
         function terminar() {
 
             window.clearInterval(intervalo);
@@ -756,6 +725,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         }
 
+
+
         function avanzar() {
 
             if (actual < tarjetas.length - 1) {
@@ -770,11 +741,15 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         }
 
+
+
         formulario.addEventListener('click', (evento) => {
 
             if (evento.target.closest('[data-accion="siguiente"]')) { avanzar(); }
 
         });
+
+
 
         intervalo = window.setInterval(() => {
 
@@ -790,6 +765,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         }, 1000);
 
+
+
         mostrar(0);
 
     })();
@@ -797,6 +774,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 </script>
 
 <?php endif; ?>
+
+
 
 <?php if ($tiempoLimite > 0 && !$porPregunta): ?>
 
@@ -810,6 +789,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
     let segundosRestantes = Number(contadorTiempo.dataset.segundosRestantes);
 
+
+
     function actualizarContador() {
 
         const minutos = Math.floor(segundosRestantes / 60);
@@ -819,6 +800,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
         contadorTiempo.textContent = `Tiempo restante: ${minutos}:${segundos}`;
 
     }
+
+
 
     actualizarContador();
 

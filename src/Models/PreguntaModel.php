@@ -6,6 +6,7 @@ class PreguntaModel{
     private int $id_actividad;
     private string $pregunta;
     private string $tipo;
+    private ?string $tipo_respuesta;
     private int $puntos;
     private ?string $imagen;
     private ?string $audio;
@@ -18,6 +19,7 @@ class PreguntaModel{
     private array $errores = [];
 
     const TIPOS_VALIDOS = ['verdadero_falso', 'completar', 'imagen', 'audio', 'opcion_multiple', 'video'];
+    const TIPOS_RESPUESTA_VIDEO = ['verdadero_falso', 'completar', 'opcion_multiple'];
     const ESTADOS_VALIDOS = ['Activo', 'Inactivo'];
 
     public function __construct(array $data = [], array $opciones = []){
@@ -26,6 +28,7 @@ class PreguntaModel{
         $this->id_actividad = (int) ($data['id_actividad'] ?? 0);
         $this->pregunta = trim($data['pregunta'] ?? '');
         $this->tipo = $data['tipo'] ?? 'verdadero_falso';
+        $this->tipo_respuesta = $this->tipo === 'video' ? (string) ($data['tipo_respuesta'] ?? 'opcion_multiple') : null;
         $this->puntos = (int) ($data['puntos'] ?? 1);
         $this->imagen = $data['imagen'] ?? null;
         $this->audio = !empty($data['audio']) ? (string) $data['audio'] : null;
@@ -74,7 +77,12 @@ class PreguntaModel{
             $this->errores[] = 'Las preguntas de video requieren un video.';
         }
 
-        if (in_array($this->tipo, ['imagen', 'audio', 'video', 'opcion_multiple'], true)) {
+        if ($this->tipo === 'video' && !in_array($this->tipo_respuesta, self::TIPOS_RESPUESTA_VIDEO, true)) {
+            $this->errores[] = 'El tipo de respuesta del video no es válido.';
+        }
+
+        $tipoEvaluacion = $this->tipo === 'video' ? $this->tipo_respuesta : $this->tipo;
+        if (in_array($tipoEvaluacion, ['imagen', 'audio', 'opcion_multiple'], true)) {
             if (count($this->opciones) < 2) {
                 $this->errores[] = "Las preguntas de opciones, imagen, audio y video deben tener al menos 2 opciones.";
             }
@@ -93,7 +101,7 @@ class PreguntaModel{
             if ($cantidadCorrectas < 1 || (!$this->seleccion_multiple && $cantidadCorrectas !== 1)) {
                 $this->errores[] = $this->seleccion_multiple ? "Debe marcar al menos una opción correcta." : "Debe marcar exactamente una opción como correcta.";
             }
-        } elseif ($this->tipo === 'verdadero_falso') {
+        } elseif ($tipoEvaluacion === 'verdadero_falso') {
             if (count($this->opciones) !== 2) {
                 $this->errores[] = "Las preguntas de verdadero/falso deben tener exactamente 2 opciones.";
             }
@@ -114,7 +122,7 @@ class PreguntaModel{
             if ($cantidadCorrectas !== 1) {
                 $this->errores[] = "Debe definir exactamente una respuesta correcta.";
             }
-        } elseif ($this->tipo === 'completar') {
+        } elseif ($tipoEvaluacion === 'completar') {
             if (count($this->opciones) !== 1 || trim((string) ($this->opciones[0]['texto'] ?? '')) === '') {
                 $this->errores[] = "Debe especificar la respuesta correcta para la pregunta de completar.";
             } elseif (empty($this->opciones[0]['correcta'])) {
@@ -135,6 +143,7 @@ class PreguntaModel{
             'id_actividad' => $this->id_actividad,
             'pregunta' => $this->pregunta,
             'tipo' => $this->tipo,
+            'tipo_respuesta' => $this->tipo_respuesta,
             'puntos' => $this->puntos,
             'imagen' => $this->imagen,
             'audio' => $this->audio,

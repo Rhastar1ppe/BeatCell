@@ -195,7 +195,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$yaRespondida) {
 
 
 
-            if (($pregunta['tipo'] ?? '') === 'completar') {$entrada = $enviadas[$idPregunta] ?? null;
+            $tipoEvaluacion = ($pregunta['tipo'] ?? '') === 'video' ? ($pregunta['tipo_respuesta'] ?? 'opcion_multiple') : ($pregunta['tipo'] ?? '');
+            if ($tipoEvaluacion === 'completar') {$entrada = $enviadas[$idPregunta] ?? null;
 
                 if (!is_string($entrada) || trim($entrada) === '') {
 
@@ -588,7 +589,8 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
         <div class="opciones-contenedor<?= (($pregunta['tipo'] ?? '') === 'imagen') ? ' opciones-imagenes' : '' ?>">
 
-        <?php if (($pregunta['tipo'] ?? '') === 'completar'): ?>
+        <?php $tipoEvaluacion = ($pregunta['tipo'] ?? '') === 'video' ? ($pregunta['tipo_respuesta'] ?? 'opcion_multiple') : ($pregunta['tipo'] ?? ''); ?>
+        <?php if ($tipoEvaluacion === 'completar'): ?>
 
             <div class="campo-completar">
 
@@ -602,7 +604,7 @@ $actividadEnCurso = !$yaRespondida && $preguntas !== [] && $temporizador !== nul
 
             <label class="opcion-respuesta<?= (($pregunta['tipo'] ?? '') === 'imagen') ? ' opcion-respuesta-imagen' : '' ?>">
 
-                <?php $esMultiple = (int) ($pregunta['seleccion_multiple'] ?? 0) === 1; ?>
+                <?php $esMultiple = $tipoEvaluacion === 'opcion_multiple' && (int) ($pregunta['seleccion_multiple'] ?? 0) === 1; ?>
                 <input type="<?= $esMultiple ? 'checkbox' : 'radio' ?>" name="respuestas[<?= (int)$pregunta['id_pregunta'] ?>]<?= $esMultiple ? '[]' : '' ?>" value="<?= (int)$opcion['id_opcion'] ?>" <?= ($porPregunta || $esMultiple) ? '' : 'required' ?>>
 
                 <span class="texto-opcion"><?= e($opcion['texto'] ?? '') ?></span>

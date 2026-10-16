@@ -44,13 +44,14 @@ class PreguntaRepository{
         try {
             $this->db->beginTransaction();
 
-            $sql = "INSERT INTO preguntas (id_actividad, pregunta, tipo, puntos, imagen, audio, video_url, seleccion_multiple, tiempo_limite, explicacion, estado) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO preguntas (id_actividad, pregunta, tipo, tipo_respuesta, puntos, imagen, audio, video_url, seleccion_multiple, tiempo_limite, explicacion, estado) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 $data['id_actividad'],
                 $data['pregunta'],
                 $data['tipo'],
+                $data['tipo'] === 'video' ? ($data['tipo_respuesta'] ?? 'opcion_multiple') : null,
                 $data['puntos'] ?? 1,
                 $data['imagen'] ?? null,
                 $data['audio'] ?? null,
@@ -92,13 +93,14 @@ class PreguntaRepository{
         try {
             $this->db->beginTransaction();
 
-            $sql = "UPDATE preguntas SET id_actividad = ?, pregunta = ?, tipo = ?, puntos = ?, imagen = ?, audio = ?, video_url = ?, seleccion_multiple = ?, tiempo_limite = ?, explicacion = ?, estado = ? 
+            $sql = "UPDATE preguntas SET id_actividad = ?, pregunta = ?, tipo = ?, tipo_respuesta = ?, puntos = ?, imagen = ?, audio = ?, video_url = ?, seleccion_multiple = ?, tiempo_limite = ?, explicacion = ?, estado = ? 
                     WHERE id_pregunta = ?";
             $stmt = $this->db->prepare($sql);
             $stmt->execute([
                 $data['id_actividad'],
                 $data['pregunta'],
                 $data['tipo'],
+                $data['tipo'] === 'video' ? ($data['tipo_respuesta'] ?? 'opcion_multiple') : null,
                 $data['puntos'] ?? 1,
                 $data['imagen'] ?? null,
                 $data['audio'] ?? null,

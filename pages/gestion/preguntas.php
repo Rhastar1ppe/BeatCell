@@ -328,6 +328,14 @@ if (isset($_GET['editar'])) {
                                   <input type="file" name="video_pregunta" id="video_pregunta" class="form-control" accept="video/mp4,.mp4">
                                   <div class="form-text">Usa un enlace HTTPS o un archivo MP4. Para reemplazar un video local, selecciona otro archivo.</div>
                               </div>
+                              <div class="mb-3" id="contenedor-tipo-respuesta-video" style="display:none;">
+                                  <label for="tipo_respuesta" class="form-label fw-bold">Tipo de respuesta del video</label>
+                                  <select name="tipo_respuesta" id="tipo_respuesta" class="form-select" onchange="cambiarTipoPregunta(true)">
+                                      <option value="opcion_multiple" <?= ($preguntaEditar['tipo_respuesta'] ?? 'opcion_multiple') === 'opcion_multiple' ? 'selected' : '' ?>>Opciones</option>
+                                      <option value="verdadero_falso" <?= ($preguntaEditar['tipo_respuesta'] ?? '') === 'verdadero_falso' ? 'selected' : '' ?>>Verdadero / Falso</option>
+                                      <option value="completar" <?= ($preguntaEditar['tipo_respuesta'] ?? '') === 'completar' ? 'selected' : '' ?>>Completar</option>
+                                  </select>
+                              </div>
                               <div class="mb-3" id="contenedor-seleccion-multiple" style="display:none;">
                                   <input type="hidden" name="seleccion_multiple" value="0">
                                   <div class="form-check">
@@ -651,6 +659,10 @@ if (isset($_GET['editar'])) {
     function cambiarTipoPregunta(cargarDatos = false) {
 
         const tipo = document.getElementById('tipo').value;
+        const esVideo = tipo === 'video';
+        const tipoEfectivo = esVideo ? (document.getElementById('tipo_respuesta')?.value || 'opcion_multiple') : tipo;
+        const selectorVideo = document.getElementById('contenedor-tipo-respuesta-video');
+        if (selectorVideo) selectorVideo.style.display = esVideo ? 'block' : 'none';
 
         const contenedor = document.getElementById('contenedor-opciones');
 
@@ -662,7 +674,7 @@ if (isset($_GET['editar'])) {
         const contenedorVideo = document.getElementById('contenedor-video-pregunta');
         const contenedorMultiple = document.getElementById('contenedor-seleccion-multiple');
         if (contenedorVideo) contenedorVideo.style.display = tipo === 'video' ? 'block' : 'none';
-        if (contenedorMultiple) contenedorMultiple.style.display = ['video','audio','imagen','opcion_multiple'].includes(tipo) ? 'block' : 'none';
+        if (contenedorMultiple) contenedorMultiple.style.display = (esVideo ? tipoEfectivo === 'opcion_multiple' : ['audio','imagen','opcion_multiple'].includes(tipo)) ? 'block' : 'none';
 
 
 
@@ -684,7 +696,7 @@ if (isset($_GET['editar'])) {
 
 
 
-        if (tipo === 'verdadero_falso') {
+        if (tipoEfectivo === 'verdadero_falso') {
 
             if (btnAgregar) btnAgregar.style.display = 'none';
 
@@ -765,7 +777,7 @@ if (isset($_GET['editar'])) {
 
 
 
-        } else if (tipo === 'completar') {
+        } else if (tipoEfectivo === 'completar') {
 
             if (btnAgregar) btnAgregar.style.display = 'none';
 
@@ -882,7 +894,7 @@ if (isset($_GET['editar'])) {
     // Verificar la respuesta correcta antes de enviar el formulario.
     document.querySelector('form[enctype="multipart/form-data"]')?.addEventListener('submit', function (evento) {
         const tipo = document.getElementById('tipo').value;
-        if (tipo === 'completar' || tipo === 'verdadero_falso') return;
+        if (tipo === 'completar' || tipo === 'verdadero_falso' || (tipo === 'video' && ['completar', 'verdadero_falso'].includes(document.getElementById('tipo_respuesta')?.value))) return;
         sincronizarCorrectas();
         const opciones = [...document.querySelectorAll('.opcion-item input[name="opciones[correcta_radio]"]')];
         if (opciones.length < 2 || !opciones.some(op => op.checked)) {

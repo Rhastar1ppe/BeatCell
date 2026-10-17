@@ -438,7 +438,7 @@ class PreguntaController {
 
 
 
-                if ($tipo === 'verdadero_falso') {
+                if ($tipo === 'verdadero_falso' || ($tipo === 'video' && ($_POST['tipo_respuesta'] ?? '') === 'verdadero_falso')) {
 
                     foreach ($opcionesFormateadas as &$opcion) {
 
@@ -531,7 +531,16 @@ class PreguntaController {
                     $videoFinal = $videoNuevo ?? $videoFinal ?? $videoAnterior;
                     if (!$videoFinal) return ['tipo' => 'danger', 'texto' => 'La pregunta de video requiere un MP4 o un enlace.'];
                 }
+                $tipoRespuesta = null;
+                if ($tipo === 'video') {
+                    $tipoRespuesta = (string) ($_POST['tipo_respuesta'] ?? 'opcion_multiple');
+                    if (!in_array($tipoRespuesta, ['verdadero_falso', 'completar', 'opcion_multiple'], true)) {
+                        $this->eliminarVideoLocal($videoNuevo);
+                        return ['tipo' => 'danger', 'texto' => 'Selecciona un tipo de respuesta válido para el video.'];
+                    }
+                }
                 $seleccionMultiple = in_array($tipo, ['opcion_multiple', 'video', 'audio', 'imagen'], true) && !empty($_POST['seleccion_multiple']) ? 1 : 0;
+                if ($tipo === 'video' && $tipoRespuesta !== 'opcion_multiple') $seleccionMultiple = 0;
                 $totalCorrectas = count(array_filter($opcionesFormateadas, static fn($o) => !empty($o['correcta'])));
                 if ($seleccionMultiple && $totalCorrectas < 2) {
                     $this->eliminarVideoLocal($videoNuevo);
@@ -550,6 +559,7 @@ class PreguntaController {
 
                     'audio' => $audioFinal,
                     'video_url' => $videoFinal,
+                    'tipo_respuesta' => $tipoRespuesta,
                     'seleccion_multiple' => $seleccionMultiple,
 
                     'tiempo_limite' => $tiempoLimite,
